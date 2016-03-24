@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+	<LinearLayout
+		android:orientation="vertical"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="8dp"
+		android:layout_marginStart="8dp"
+		android:layout_marginRight="8dp"
+		android:layout_marginEnd="8dp">
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Date begin"/>
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+			<EditText
+				android:id="@+id/etFilterDateBegin"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:clickable="true"
+				android:inputType="none"
+				android:focusable="false"
+				android:layout_weight="1" />
+			<EditText
+				android:id="@+id/etFilterTimeBegin"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:clickable="true"
+				android:inputType="none"
+				android:focusable="false"
+				android:layout_weight="1" />
+			<ImageButton
+				android:id="@+id/btnClearBeginDate"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_margin="8dp"
+				android:layout_gravity="center_vertical"
+				android:background="@android:drawable/ic_menu_close_clear_cancel"
+				android:clickable="true"/>
+		</LinearLayout>
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Date end"/>
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+			<EditText
+				android:id="@+id/etFilterDateEnd"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:clickable="true"
+				android:inputType="none"
+				android:focusable="false"
+				android:layout_weight="1" />
+			<EditText
+				android:id="@+id/etFilterTimeEnd"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:clickable="true"
+				android:inputType="none"
+				android:focusable="false"
+				android:layout_weight="1" />
+			<ImageButton
+				android:id="@+id/btnClearEndDate"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_margin="8dp"
+				android:layout_gravity="center_vertical"
+				android:background="@android:drawable/ic_menu_close_clear_cancel"
+				android:clickable="true"/>
+		</LinearLayout>
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Status"/>
+		<Spinner
+			android:id="@+id/spFilterStatus"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content" />
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Min amount"/>
+		<EditText
+			android:id="@+id/etFilterAmountMin"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:inputType="number" />
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Max amount"/>
+		<EditText
+			android:id="@+id/etFilterAmountMax"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:inputType="number" />
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Currency"/>
+		<Spinner
+			android:id="@+id/spFilterCurrency"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content" />
+
+		<Button
+            android:id="@+id/btApply"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:layout_marginRight="64dp"
+			android:layout_marginLeft="64dp"
+            android:text="Apply" />
+
+	</LinearLayout>
+</ScrollView>

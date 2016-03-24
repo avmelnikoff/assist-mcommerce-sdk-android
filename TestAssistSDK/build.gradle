@@ -1,0 +1,70 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion '23.0.1'
+    defaultConfig {
+        applicationId "ru.assisttech.assistsdk"
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 9
+        versionName "1.4.1"
+    }
+    //
+    // Signing Note (Test)
+    //
+    // 1. Put file gradle.properties into /home/user/.gradle directory
+    // 2. Fill in gradle.properties with string:
+    //        TestAssistSDK.properties=/home/user/.signing/file_name.properties
+    //
+    // 3. Create directory /home/user/.signing
+    // 4. Put into it file called file_name.properties
+    // 5. Fill in file_name.properties with string-value pairs:
+    //        keystore=/path/to/keystore/file.keystore
+    //        keystore.password=your_password
+    //        keyalias=your_key_alias
+    //        keypassword=your_key_password
+    //
+    if (project.hasProperty("TestAssistSDK.properties") &&
+            new File((String) project.property("TestAssistSDK.properties")).exists()) {
+
+        Properties props = new Properties()
+        props.load(new FileInputStream(file(project.property("TestAssistSDK.properties"))))
+
+        signingConfigs {
+            release {
+                storeFile file(props['keystore'])
+                storePassword props['keystore.password']
+                keyAlias props['keyalias']
+                keyPassword props['keypassword']
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            zipAlignEnabled true
+        }
+    }
+    String appName = name
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            String outName = output.outputFile.name.replace(".apk", "-${variant.versionName}.apk")
+            outName = outName.replace(appName, "mobilePayTest")
+            output.outputFile = new File(
+                    output.outputFile.parent,
+                    outName)
+        }
+    }
+    productFlavors {
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'io.card:android-sdk:5.0.0'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile project(':sdk')
+}
