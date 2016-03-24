@@ -1,0 +1,116 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="8dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="16dp"
+            android:background="@android:color/darker_gray"
+            android:text="@string/settings_language"
+            android:paddingLeft="8dp"/>
+        <Spinner
+            android:id="@+id/spLanguage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <!-- PAYMENT MODE -->
+
+        <TextView
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="16dp"
+            android:background="@android:color/darker_gray"
+            android:text="@string/payment_mode"
+            android:paddingLeft="8dp"/>
+        <CheckBox
+            android:id="@+id/chYMPayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="YM Payment"/>
+        <CheckBox
+            android:id="@+id/chWMPayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="WM Payment"/>
+        <CheckBox
+            android:id="@+id/chQIWIPayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="QIWI Payment"/>
+        <CheckBox
+            android:id="@+id/chQIWIMtsPayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="QIWI MTS Payment"/>
+        <CheckBox
+            android:id="@+id/chQIWIMegafonPayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="QIWI Megafon Payment"/>
+        <CheckBox
+            android:id="@+id/chQIWIBeelinePayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="QIWI Beeline Payment"/>
+
+        <!-- RECURRING -->
+
+        <TextView
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="16dp"
+            android:background="@android:color/darker_gray"
+            android:text="@string/settings_recurring"
+            android:paddingLeft="8dp"/>
+
+        <CheckBox
+            android:id="@+id/chRecurringIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Recurring Indicator"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Min Amount"/>
+        <EditText
+            android:id="@+id/etRecMinAmt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Max Amount"/>
+        <EditText
+            android:id="@+id/etRecMaxAmt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Period"/>
+        <EditText
+            android:id="@+id/etRecPeriod"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Max Date"/>
+        <EditText
+            android:id="@+id/etRecMaxDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+</ScrollView>

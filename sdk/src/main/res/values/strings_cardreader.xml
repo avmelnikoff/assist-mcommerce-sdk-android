@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cardreader_insert_card">Вставьте карту</string>
+    <string name="cardreader_remove_card">Заберите карту</string>
+    <string name="cardreader_wait">Подождите&#8230;</string>
+</resources>

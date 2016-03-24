@@ -1,0 +1,151 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="top|center"
+        android:background="#ffffff"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#f2f2f2"
+            android:padding="16dp"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Result"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="10dp"
+                >
+            </TextView>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ffffff"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp"
+            >
+
+            <TextView
+                android:id="@+id/tvResultPaymentMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Card Paymode"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="10dp"
+                >
+            </TextView>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Order number: "
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="5dp"/>
+            <TextView
+                android:id="@+id/tvResultOrderNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Result amount: "
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="5dp"/>
+            <TextView
+                android:id="@+id/tvResultOrderAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal">
+             <TextView
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="Order comment: "
+                 android:layout_marginLeft="16dp"
+                 android:layout_marginRight="5dp"/>
+             <TextView
+                 android:id="@+id/tvResultOrderComment"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text=""
+                 />
+         </LinearLayout>
+
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal">
+             <TextView
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="Result status: "
+                 android:layout_marginLeft="16dp"
+                 android:layout_marginRight="5dp"/>
+             <TextView
+                 android:id="@+id/tvResultStatus"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"/>
+         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Extra info: "
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="5dp"/>
+            <TextView
+                android:id="@+id/tvResultExtraInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center">
+
+            <Button
+                android:id="@+id/btnResultClose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="16dp"
+                android:text="Close"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
