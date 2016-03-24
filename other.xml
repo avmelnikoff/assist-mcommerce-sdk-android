@@ -1,0 +1,144 @@
+<application>
+  <component name="CodeStyleSchemes">
+    <option name="CURRENT_SCHEME_NAME" value="Default" />
+  </component>
+  <component name="DebuggerSettings">
+    <option name="TRACING_FILTERS_ENABLED" value="true" />
+    <option name="FORCE_CLASSIC_VM" value="true" />
+    <option name="SKIP_SYNTHETIC_METHODS" value="true" />
+    <option name="SKIP_CLASSLOADERS" value="true" />
+    <option name="RUN_HOTSWAP_AFTER_COMPILE" value="RunHotswapAsk" />
+    <option name="COMPILE_BEFORE_HOTSWAP" value="true" />
+    <filter>
+      <option name="PATTERN" value="com.sun.*" />
+      <option name="ENABLED" value="true" />
+    </filter>
+    <filter>
+      <option name="PATTERN" value="java.*" />
+      <option name="ENABLED" value="true" />
+    </filter>
+    <filter>
+      <option name="PATTERN" value="javax.*" />
+      <option name="ENABLED" value="true" />
+    </filter>
+    <filter>
+      <option name="PATTERN" value="org.omg.*" />
+      <option name="ENABLED" value="true" />
+    </filter>
+    <filter>
+      <option name="PATTERN" value="sun.*" />
+      <option name="ENABLED" value="true" />
+    </filter>
+    <filter>
+      <option name="PATTERN" value="junit.*" />
+      <option name="ENABLED" value="true" />
+    </filter>
+    <filter>
+      <option name="PATTERN" value="com.intellij.rt.*" />
+      <option name="ENABLED" value="true" />
+    </filter>
+    <filter>
+      <option name="PATTERN" value="com.yourkit.runtime.*" />
+      <option name="ENABLED" value="true" />
+    </filter>
+    <filter>
+      <option name="PATTERN" value="com.springsource.loaded.*" />
+      <option name="ENABLED" value="true" />
+    </filter>
+    <filter>
+      <option name="PATTERN" value="org.springsource.loaded.*" />
+      <option name="ENABLED" value="true" />
+    </filter>
+  </component>
+  <component name="FileEditorProviderManager">
+    <option name="selectedProviders">
+      <map>
+        <entry key="android-designer,text-editor" value="text-editor" />
+      </map>
+    </option>
+  </component>
+  <component name="SVN bar">
+    <add>true</add>
+    <remove>true</remove>
+    <revert>true</revert>
+    <edit>true</edit>
+    <unedit>true</unedit>
+    <commit>true</commit>
+    <update>true</update>
+    <checkout>true</checkout>
+    <diffLast>true</diffLast>
+    <showHistory>true</showHistory>
+    <hide>false</hide>
+    <updateBeforeEdit>false</updateBeforeEdit>
+    <annotate>true</annotate>
+    <showProperties>true</showProperties>
+    <diffMode>SELECTED</diffMode>
+  </component>
+  <component name="SvnApplicationSettings">
+    <option name="myCheckoutURLs">
+      <list>
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/sdk_for_share" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/bp_50_with_bspb" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/reader_emulation" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mPos/branches/MOB-89_RGS" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mPos/trunk" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mCommerce/trunk" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/trunk" />
+      </list>
+    </option>
+    <option name="myTypedURLs">
+      <list>
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/sdk_for_share" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/bp_50_with_bspb" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/reader_emulation" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mPos/branches/MOB-89_RGS" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mPos/trunk" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mCommerce/trunk" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/trunk" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/Android/Assist.SDK" />
+        <option value="svn://yunona.assist.ru/assist/Production" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/AssistMobile/trunk" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/AssistMobile" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/Android/AssistSDK" />
+        <option value="svn://yunona.assist.ru/assist/Production/" />
+      </list>
+    </option>
+  </component>
+  <component name="SvnBranchMapperManager">
+    <option name="myMapping">
+      <map>
+        <entry key="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/bp_50_with_bspb">
+          <value>
+            <set>
+              <option value="$USER_HOME$/AndroidstudioProjects/bp50_with_bspb" />
+            </set>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="SystemNotifications">
+    <option name="NOTIFICATIONS">
+      <set>
+        <option value="Gradle Invocation (success)" />
+      </set>
+    </option>
+  </component>
+  <component name="com.intellij.ide.fileTemplates.impl.FileTemplateManagerImpl">
+    <recent_templates>
+      <option name="RECENT_TEMPLATES">
+        <value>
+          <list size="0" />
+        </value>
+      </option>
+    </recent_templates>
+  </component>
+  <component name="com.intellij.javaee.ExternalResourceManagerImpl">
+    <ignored-resource url="http://relaxng.org/ns/compatibility/annotations/1.0" />
+    <ignored-resource url="http://www.w3.org/1998/Math/MathML" />
+    <ignored-resource url="http://www.w3.org/2000/svg" />
+  </component>
+</application>
