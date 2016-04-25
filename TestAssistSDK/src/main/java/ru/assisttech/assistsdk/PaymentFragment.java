@@ -3,7 +3,6 @@ package ru.assisttech.assistsdk;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -94,7 +93,7 @@ public abstract class PaymentFragment extends Fragment implements PayEngineListe
     @Override
     public void onFinished(Activity activity, AssistTransaction assistTransaction) {
         Intent intent = new Intent(getActivity(), ViewResultActivity.class);
-        intent.putExtra(Intent.EXTRA_TEXT, assistTransaction.getId());
+        intent.putExtra(ViewResultActivity.TRANSACTION_ID_EXTRA, assistTransaction.getId());
         startActivity(intent);
     }
 

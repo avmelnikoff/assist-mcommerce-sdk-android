@@ -15,6 +15,8 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.util.Enumeration;
 import java.util.List;
@@ -158,12 +160,19 @@ public class AssistNetworkEngine {
             listener = null;
         }
 
-        private HttpsURLConnection createConnection(URL url, boolean useCustomSocketFactory) throws IOException {
+        private HttpsURLConnection createConnection(URL url, boolean useCustomCertificates) throws IOException {
 			HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-            if (useCustomSocketFactory) {
-                urlConnection.setSSLSocketFactory(getSSLContext().getSocketFactory());
+            try {
+                if (useCustomCertificates) {
+                    urlConnection.setSSLSocketFactory(new TLSSocketFactory(getSSLContext()));
+                } else {
+                    urlConnection.setSSLSocketFactory(new TLSSocketFactory());
+                }
+            } catch (KeyManagementException e) {
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
             }
-
             urlConnection.setInstanceFollowRedirects(true);
             urlConnection.addRequestProperty("Accept", "text/html");
             urlConnection.addRequestProperty("Accept-Encoding", "gzip, deflate");

@@ -424,7 +424,7 @@ public abstract class AssistBasePayEngine {
         public void onConnectionFailure(String info) {
             Log.d(TAG, "Connection check error. " + info);
             closeProgressDialog();
-            connectionChecked = true;
+            connectionChecked = false;
             engineInitializationFailed(getContext().getString(R.string.connection_error));
         }
     }

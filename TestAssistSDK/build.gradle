@@ -16,11 +16,12 @@ android {
     // 1. Put file gradle.properties into /home/user/.gradle directory
     // 2. Fill in gradle.properties with string:
     //        TestAssistSDK.properties=/home/user/.signing/file_name.properties
+    //        (Windows: TestAssistSDK.properties=C:\\Users\\user\\.signing\\file_name.properties)
     //
     // 3. Create directory /home/user/.signing
     // 4. Put into it file called file_name.properties
     // 5. Fill in file_name.properties with string-value pairs:
-    //        keystore=/path/to/keystore/file.keystore
+    //        keystore=/path/to/keystore/file.keystore (Windows: keystore=C:\\path\\to\\keystore\\file.keystore)
     //        keystore.password=your_password
     //        keyalias=your_key_alias
     //        keypassword=your_key_password
