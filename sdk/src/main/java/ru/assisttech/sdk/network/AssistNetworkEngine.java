@@ -35,7 +35,7 @@ public class AssistNetworkEngine {
 													
 	private SSLContextFactory sslContextFactory;
 	private SSLContext sslContext;
-    private boolean useCustomSslContextFactory;
+    private boolean useCustomSslCertificates;
 	private String userAgent = "Mozilla";
     private CheckHTTPSConnectionTask connectionTask;
     private AssistNetworkTask networkTask;
@@ -86,7 +86,7 @@ public class AssistNetworkEngine {
 	}
 
 	public boolean isCustomSslCertificateUsed() {
-		return useCustomSslContextFactory;
+		return useCustomSslCertificates;
 	}
 
     public void stopTasks() {
@@ -207,6 +207,7 @@ public class AssistNetworkEngine {
 
 				Log.d(TAG, "Check connection");
                 if (checkConnection(urlConnection)) {
+                    setUseCustomSslCertificates(false);
                     success = true;
                     return null;
                 }
@@ -231,7 +232,7 @@ public class AssistNetworkEngine {
 
 				Log.d(TAG, "Check connection");
                 if (checkConnection(urlConnection)) {
-                    setUseCustomSslContext(true);
+                    setUseCustomSslCertificates(true);
                     success = true;
                     return null;
                 }
@@ -296,8 +297,18 @@ public class AssistNetworkEngine {
             HttpsURLConnection connection = null;
             try {
                 connection = (HttpsURLConnection)getUrl().openConnection();
-                if (useCustomSslContext()) {
-                    connection.setSSLSocketFactory(getSSLContext().getSocketFactory());
+                try {
+                    if (isCustomSslCertificateUsed()) {
+                        connection.setSSLSocketFactory(new TLSSocketFactory(getSSLContext()));
+                    } else {
+                        connection.setSSLSocketFactory(new TLSSocketFactory());
+                    }
+                } catch (KeyManagementException e) {
+                    e.printStackTrace();
+                    throw new IOException("Connection initialization failed");
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                    throw new IOException("Connection initialization failed");
                 }
                 connection.setInstanceFollowRedirects(true);
                 connection.setUseCaches(false);
@@ -478,17 +489,10 @@ public class AssistNetworkEngine {
 		return sslContext;
 	}
 
-    private void setUseCustomSslContext(boolean value) {
-        useCustomSslContextFactory = value;
+    private void setUseCustomSslCertificates(boolean value) {
+        useCustomSslCertificates = value;
     }
 
-    private boolean useCustomSslContext() {
-        if (useCustomSslContextFactory) {
-            Log.d(TAG, "Using custom SSLContextFactory");
-        }
-        return useCustomSslContextFactory;
-    }
-	
 	/**
 	 * Logs HTTP response headers 
 	 * @param headers HTTP protocol headers
