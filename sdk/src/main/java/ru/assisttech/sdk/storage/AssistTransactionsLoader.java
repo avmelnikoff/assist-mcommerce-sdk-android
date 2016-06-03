@@ -21,7 +21,7 @@ public class AssistTransactionsLoader extends CursorLoader {
     @Override
     public Cursor loadInBackground() {
         if (bundle != null) {
-            return storage.getData(bundle.getString(ARG_STRING_ORDER_NUMBER));
+            return storage.getDataWithNoFiltration(bundle.getString(ARG_STRING_ORDER_NUMBER));
         } else {
             return storage.getData();
         }

@@ -180,6 +180,11 @@ public class AssistTransactionStorageImpl implements AssistTransactionStorage {
     }
 
     @Override
+    public Cursor getDataWithNoFiltration(String orderNumber) {
+        return getData(new AssistTransactionFilter(), orderNumber);
+    }
+
+    @Override
     public int deleteTransactions(AssistTransactionFilter filter) {
         DBHelper dbHelper = new DBHelper(mCtx, dbName, null, DB_VERSION);
         SQLiteDatabase db = dbHelper.getWritableDatabase();

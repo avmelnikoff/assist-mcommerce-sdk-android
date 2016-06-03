@@ -18,6 +18,8 @@ public interface AssistTransactionStorage {
 
     Cursor getData(String orderNumber);
 
+	Cursor getDataWithNoFiltration(String orderNumber);
+
     AssistTransaction getTransaction(long id);
 		
 	AssistTransactionFilter getFilter();

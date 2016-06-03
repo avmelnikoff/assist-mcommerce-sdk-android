@@ -41,4 +41,8 @@
     <string name="alert_dlg_title_cancel_error">Ошибка отмены заказа</string>
     <string name="alert_dlg_cancel_error_msg">Свяжитесь со службой поддержки предприятия.</string>
 
+    <string name="transactions_filter">Фильтр</string>
+    <string name="transactions_delete_1_month_old">Удалить старше месяца</string>
+    <string name="transactions_delete_2_weeks_old">Удалить старше 2х месяцев</string>
+
 </resources>
