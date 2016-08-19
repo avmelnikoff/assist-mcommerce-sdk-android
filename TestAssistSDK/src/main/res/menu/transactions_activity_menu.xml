@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu
+	xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<item android:id="@+id/action_search"
 		android:title="@android:string/search_go"
 		android:icon="@android:drawable/ic_menu_search"
-        app:showAsAction="ifRoom|collapseActionView"
+        android:showAsAction="ifRoom|collapseActionView"
 		android:actionViewClass="android.widget.SearchView" />
 
 
 	<item
 		android:id="@+id/miTransFilter"
-		android:title="Filter"/>
+		android:title="@string/transactions_filter"/>
 
 	<item
 		android:id="@+id/miDelete1month"
-		android:title="Delete 1 month old"/>
+		android:title="@string/transactions_delete_1_month_old"/>
 
 	<item
 		android:id="@+id/miDelete2weeks"
-		android:title="Delete 2 weeks old"/>
+		android:title="@string/transactions_delete_2_weeks_old"/>
 
 </menu>

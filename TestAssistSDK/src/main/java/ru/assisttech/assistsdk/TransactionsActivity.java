@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
@@ -194,9 +195,9 @@ public class TransactionsActivity extends UpButtonActivity implements LoaderMana
 			View view = super.getView(position, convertView, parent);
 			Cursor c = getCursor();
 			c.moveToPosition(position);
-			String state = c.getString(c.getColumnIndexOrThrow(AssistTransactionStorageImpl.COLUMN_ORDER_STATE));
-			Log.d(TAG, "State: " + state);
-			AssistResult.OrderState os = AssistResult.OrderState.fromString(state);
+            AssistTransaction t = storage.transactionFromCursor(c);
+            AssistResult.OrderState os = t.getResult().getOrderState();
+            Log.d(TAG, "State: " + os.toString());
 			switch (os) {
 				case APPROVED:
                     view.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.transaction_approved));
@@ -214,9 +215,16 @@ public class TransactionsActivity extends UpButtonActivity implements LoaderMana
                     view.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.transaction_napproved));
 					break;
 			}
-            String amount = c.getString(c.getColumnIndex(AssistTransactionStorageImpl.COLUMN_ORDER_AMOUNT));
             TextView tvAmount = (TextView)view.findViewById(R.id.tvTransItemOrderAmount);
-            tvAmount.setText(AssistTransaction.formatAmount(amount));
+            tvAmount.setText(AssistTransaction.formatAmount(t.getOrderAmount()));
+
+            ImageView ivFilterIcon = (ImageView)view.findViewById(R.id.ivFilterIcon);
+            if (storage.getFilter().match(t)) {
+                ivFilterIcon.setVisibility(View.VISIBLE);
+            } else {
+                ivFilterIcon.setVisibility(View.INVISIBLE);
+            }
+
 			return view;
 		}
 	}

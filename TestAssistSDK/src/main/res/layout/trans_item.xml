@@ -1,41 +1,66 @@
-<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-    
-	<TextView
-        android:id="@+id/tvTransItemOrderDate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="10dp"/>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/tvTransItemOrderNumber"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="10dp"/>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-    	<TextView
-        	android:id="@+id/tvTransItemOrderAmount"
-        	android:layout_width="match_parent"
-        	android:layout_height="wrap_content"
-        	android:textSize="15sp"
-        	android:layout_marginBottom="5dp"
-        	android:layout_marginLeft="10dp"/>
-    	<TextView
-        	android:id="@+id/tvTransItemOrderCurrency"
-        	android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
-        	android:textSize="15sp"
-        	android:layout_marginBottom="5dp"
-        	android:layout_marginLeft="10dp"/>
-    </LinearLayout>
+	<LinearLayout
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:layout_weight="1">
+
+		<TextView
+			android:id="@+id/tvTransItemOrderDate"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textSize="20sp"
+			android:layout_marginTop="5dp"
+			android:layout_marginLeft="10dp"
+			android:layout_marginStart="10dp"
+			tools:text = "Order Date"/>
+
+		<TextView
+			android:id="@+id/tvTransItemOrderNumber"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textSize="18sp"
+			android:layout_marginTop="5dp"
+			android:layout_marginLeft="10dp"
+			android:layout_marginStart="10dp"
+			tools:text="#123456789" />
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+			<TextView
+				android:id="@+id/tvTransItemOrderAmount"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:textSize="15sp"
+				android:layout_marginBottom="5dp"
+				android:layout_marginLeft="10dp"
+				android:layout_marginStart="10dp"
+				tools:text = "100.23"/>
+			<TextView
+				android:id="@+id/tvTransItemOrderCurrency"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textSize="15sp"
+				android:layout_marginBottom="5dp"
+				android:layout_marginLeft="10dp"
+				android:layout_marginStart="10dp"
+				tools:text = "RUB"/>
+		</LinearLayout>
+	</LinearLayout>
+
+	<ImageView
+		android:id="@+id/ivFilterIcon"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_vertical"
+		android:layout_margin="8dp"
+		android:src="@drawable/ic_filter" />
 
 </LinearLayout>
