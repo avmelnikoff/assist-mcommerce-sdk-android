@@ -12,14 +12,8 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
 
     <!-- Camera features - recommended -->
     <uses-feature
@@ -45,9 +39,6 @@
             android:configChanges="keyboardHidden|orientation" />
         <activity android:name="io.card.payment.DataEntryActivity" />
 
-        <service android:name=".cardreader.bluepad50.Bluepad50Service" android:exported="false"/>
-        <service android:name=".cardreader.bluepad50.Bluepad50NfcService" android:exported="false"/>
-        <service android:name=".cardreader.drd50.DRD50Service" android:exported="false"/>
         
     </application>
 

@@ -12,6 +12,8 @@ public interface AssistTransactionStorage {
 
 	void updateTransactionSignature(long id, byte[] signature);
 
+	void updateTransactionOrderNumber(long id, String on);
+
 	void updateTransactionResult(long id, AssistResult result);
 
     Cursor getData();

@@ -13,6 +13,7 @@ import org.jsoup.select.Elements;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -162,19 +163,14 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 
 		StringBuilder content = new StringBuilder();
         try {
-    		Map<String, String> params = data.getFields();
+			SignatureProcessor sp = new SignatureProcessor();
 
-            StringBuilder stringToSign = null;
-            if (!params.containsKey(FieldName.Signature)) {
-                stringToSign = new StringBuilder();
-            }
+    		Map<String, String> params = data.getFields();
 
 			content.append(URLEncoder.encode("Merchant_ID", "UTF-8")).append("=");
 			content.append(URLEncoder.encode(m.getID(), "UTF-8")).append("&");
 
-            if (stringToSign != null) {
-                stringToSign.append(m.getID()).append(";");
-            }
+			sp.check4Signature("Merchant_ID", m.getID());
 
             Log.d(TAG, "Request parameters:");
         	for (Entry<String, String> item: params.entrySet()) {
@@ -183,21 +179,16 @@ public class AssistWebProcessor extends AssistBaseProcessor {
         		if (!item.getKey().equals(FieldName.Shop)) {
 	        		content.append(URLEncoder.encode(item.getKey(), "UTF-8")).append("=");
 	        		content.append(URLEncoder.encode(item.getValue(), "UTF-8")).append("&");
-        		}        		
-
-        		if (stringToSign != null && isSignatureField(item.getKey())) {
-        			stringToSign.append(item.getValue()).append(";");
         		}
+				sp.check4Signature(item.getKey(), item.getValue());
         	}
 
-            if (stringToSign != null) {
-                stringToSign.deleteCharAt(stringToSign.lastIndexOf(";"));
-                content.append(URLEncoder.encode(FieldName.Signature, "UTF-8")).append("=");
-                content.append(URLEncoder.encode(
-                        createSignature(data.getPrivateKey(), stringToSign.toString()), "UTF-8"))
-                        .append("&");
-            }
-                       
+			if (!params.containsKey(FieldName.Signature)) {
+				content.append(URLEncoder.encode(FieldName.Signature, "UTF-8")).append("=");
+				content.append(
+					URLEncoder.encode(sp.calculateSignature(data.getPrivateKey()), "UTF-8")).append("&");
+			}
+
             // Mobile application specific parameters
 	        content.append(URLEncoder.encode(FieldName.Latitude, "UTF-8")).append("=");
 	        content.append(URLEncoder.encode(sysInfo.lattitude(), "UTF-8")).append("&");
@@ -243,35 +234,6 @@ public class AssistWebProcessor extends AssistBaseProcessor {
         }
         return content.toString();
 	}
-	
-	private boolean isSignatureField(String fieldName) {
-		return (/*fieldName.equals(FieldName.Merchant_ID) ||*/
-		   	    fieldName.equals(FieldName.OrderNumber) ||
-		        fieldName.equals(FieldName.OrderAmount) ||
-		        fieldName.equals(FieldName.OrderCurrency));
-	}
-	
-	private String createSignature(PrivateKey key, String inputString) {
-		String signatureB64 = null;
-		
-        if (key != null) {
-        	try {
-            	Signature sig = Signature.getInstance("MD5WithRSA");
-	            sig.initSign(key);
-	            sig.update(inputString.getBytes("UTF-8"));                       
-		        // Encode signature to Base64 form
-	            signatureB64 = Base64.encodeToString(sig.sign(), Base64.DEFAULT);		        
-		        //Log.d(TAG, "Signature: " + signatureB64);
-		        			        
-        	} catch (NoSuchAlgorithmException|
-                     InvalidKeyException|
-                     SignatureException|
-					 UnsupportedEncodingException e) {
-        		e.printStackTrace();
-	        }
-        }      
-        return ((signatureB64 != null) ? signatureB64 : "");
-	}
 		
 	private void finishCardScanning(int requestCode, Intent data) {
 
@@ -290,7 +252,66 @@ public class AssistWebProcessor extends AssistBaseProcessor {
                 cardPageHandler.fillInPage(assistCard);
             }
         }
-	}				
+	}
+
+	/**
+	 * Signature forming helper class
+	 */
+	private class SignatureProcessor {
+
+		private static final String MERCHANT_ID = "Merchant_ID";
+		private static final String ORDER_NUMBER = "OrderNumber";
+		private static final String ORDER_AMOUNT = "OrderAmount";
+		private static final String ORDER_CURRENCY = "OrderCurrency";
+
+		private String Merchant_ID;
+		private String OrderNumber;
+		private String OrderAmount;
+		private String OrderCurrency;
+
+		public void check4Signature(String fieldName, String value) {
+			switch (fieldName) {
+				case MERCHANT_ID:
+					Merchant_ID = value;
+					break;
+				case ORDER_NUMBER:
+					OrderNumber = value;
+					break;
+				case ORDER_AMOUNT:
+					OrderAmount = value;
+					break;
+				case ORDER_CURRENCY:
+					OrderCurrency = value;
+					break;
+			}
+		}
+
+		public String calculateSignature(PrivateKey key) {
+
+			String input = Merchant_ID + ";"
+					     + OrderNumber + ";"
+					     + OrderAmount + ";"
+					     + OrderCurrency;
+
+			String signatureB64 = null;
+
+			if (key != null) {
+				try {
+					Signature sig = Signature.getInstance("MD5WithRSA");
+					sig.initSign(key);
+					sig.update(input.getBytes("UTF-8"));
+					signatureB64 = Base64.encodeToString(sig.sign(), Base64.DEFAULT);
+
+				} catch (NoSuchAlgorithmException|
+						InvalidKeyException|
+						SignatureException|
+						UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+			}
+			return ((signatureB64 != null) ? signatureB64 : "");
+		}
+	}
 	
 	/**
 	 * Parses web page for error description {@link NetworkResponseProcessor}
@@ -430,6 +451,7 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 		
 		protected String info = null;
 		protected String billNumber = null;
+		protected String orderNumber = null;
 		protected boolean approved = true;
 		protected boolean error = false;
 
@@ -447,8 +469,8 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 					Element inf = i1results.first();
 					info = inf.text();
 				}
-				
-				Elements forms = body.getElementsByClass("Form");
+
+                Elements forms = body.getElementsByAttributeValue("name", "form1");
 				if (!forms.isEmpty()){
 					Element form = forms.first();					
 					String data = form.toString();
@@ -469,7 +491,20 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 		    			if (end != NOT_FOUND) {
 		    				billNumber = data.substring(i, end);
 		    			}
-		    		}    		    			    			    														
+		    		}
+
+					i = data.indexOf("ordernumber=");
+					if (i != NOT_FOUND) {
+                        i += "ordernumber=".length();
+						int end = data.indexOf('&', i);
+						if (end != NOT_FOUND) {
+                            try {
+                                orderNumber = URLDecoder.decode(data.substring(i, end), "UTF-8");
+                            } catch (UnsupportedEncodingException e) {
+                                Log.e(TAG, "OrderNumber decoding error");
+                            }
+                        }
+					}
 				}
     		} catch (NullPointerException e) {
     			e.printStackTrace();  	    								
@@ -493,6 +528,7 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 					result.setOrderState(AssistResult.OrderState.DECLINED);
 	    		}
 	    		result.setBillNumber(billNumber);
+                result.setOrderNumber(orderNumber);
     		}	
     		result.setExtra(info);
             if (hasListener()) {

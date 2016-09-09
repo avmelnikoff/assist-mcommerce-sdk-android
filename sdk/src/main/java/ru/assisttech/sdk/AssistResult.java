@@ -16,6 +16,12 @@ public class AssistResult {
     private String billNumber;
     /** Additional information**/
     private String extraInfo;
+    /**
+     * Order number returned by Assist payment system
+     * May differ from the order number sent by mobile application
+     * in case if order number auto-generating enabled for certain Merchant ID
+     */
+    private String orderNumber;
 
     /**
      * Possible order state values
@@ -237,6 +243,22 @@ public class AssistResult {
 	 */
     public String getExtra() {
 	    return extraInfo;
+    }
+
+    /**
+     * Used in web payment
+     * @return order number
+     */
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    /**
+     * Used in web payment
+     * @param value order number returned by Assist
+     */
+    public void setOrderNumber(String value) {
+        orderNumber = value;
     }
 
     public boolean isUnknown() {

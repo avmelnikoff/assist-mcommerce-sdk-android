@@ -157,6 +157,13 @@ public class AssistTransactionStorageImpl implements AssistTransactionStorage {
 	}
 
     @Override
+    public void updateTransactionOrderNumber(long id, String on) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_ORDER_NUMBER, on);
+        updateTransactionsTable(id, cv);
+    }
+
+    @Override
     public void updateTransactionResult(long id, AssistResult result) {
         ContentValues cv = new ContentValues();
 
