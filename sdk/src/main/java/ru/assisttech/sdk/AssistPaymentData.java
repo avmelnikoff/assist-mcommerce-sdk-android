@@ -377,7 +377,7 @@ public class AssistPaymentData {
 		/** Euro **/
 		EUR, 
 		/** Belorussian Ruble **/
-		BYR, 
+		BYN, 
 		/** Australian Dollar **/
 		AUD,
 		/** Azerbaijan Manats **/
