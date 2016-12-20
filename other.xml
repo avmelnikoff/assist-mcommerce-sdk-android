@@ -77,23 +77,25 @@
   <component name="SvnApplicationSettings">
     <option name="myCheckoutURLs">
       <list>
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDKv2/trunk" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/sdk_for_share" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/bp_50_with_bspb" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/reader_emulation" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mPos/branches/MOB-89_RGS" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mPos/trunk" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mCommerce/trunk" />
-        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/trunk" />
       </list>
     </option>
     <option name="myTypedURLs">
       <list>
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDKv2/trunk" />
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/sdk_for_share" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/bp_50_with_bspb" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/reader_emulation" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mPos/branches/MOB-89_RGS" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mPos/trunk" />
-        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mCommerce/trunk" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/trunk" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio" />
