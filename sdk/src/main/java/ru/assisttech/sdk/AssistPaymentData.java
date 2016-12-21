@@ -22,6 +22,10 @@ public class AssistPaymentData {
 		merchantID = value;
 	}
 	
+	public void setDelay(boolean value) {
+		values.put(FieldName.Delay, Integer.toString(value ? 1 : 0));
+	}
+
 	public void setCustomerNumber(String value) {
 		values.put(FieldName.CustomerNumber, value);
 	}
