@@ -3,6 +3,7 @@ package ru.assisttech.sdk.processor;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
@@ -263,11 +264,13 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 		private static final String ORDER_NUMBER = "OrderNumber";
 		private static final String ORDER_AMOUNT = "OrderAmount";
 		private static final String ORDER_CURRENCY = "OrderCurrency";
+		private static final String CUSTOMER_NUMBER = "CustomerNumber";
 
 		private String Merchant_ID;
 		private String OrderNumber;
 		private String OrderAmount;
 		private String OrderCurrency;
+		private String CustomerNumber;
 
 		public void check4Signature(String fieldName, String value) {
 			switch (fieldName) {
@@ -283,6 +286,9 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 				case ORDER_CURRENCY:
 					OrderCurrency = value;
 					break;
+				case CUSTOMER_NUMBER:
+					CustomerNumber = value;
+					break;
 			}
 		}
 
@@ -292,6 +298,10 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 					     + OrderNumber + ";"
 					     + OrderAmount + ";"
 					     + OrderCurrency;
+
+			if (!TextUtils.isEmpty(CustomerNumber)) {
+				input += ";" + CustomerNumber;
+			}
 
 			String signatureB64 = null;
 
