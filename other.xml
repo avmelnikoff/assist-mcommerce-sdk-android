@@ -77,6 +77,7 @@
   <component name="SvnApplicationSettings">
     <option name="myCheckoutURLs">
       <list>
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mPos/branches/ASIX-374 GuruIntegration" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDKv2/trunk" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/sdk_for_share" />
@@ -89,6 +90,7 @@
     </option>
     <option name="myTypedURLs">
       <list>
+        <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/mPos/branches/ASIX-374 GuruIntegration" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDKv2/trunk" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile" />
         <option value="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDK/branches/sdk_for_share" />
