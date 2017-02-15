@@ -126,6 +126,13 @@
             </set>
           </value>
         </entry>
+        <entry key="svn://yunona.assist.ru/assist/Production/Assist.Mobile/android/AndroidStudio/SDKv2/trunk">
+          <value>
+            <set>
+              <option value="$USER_HOME$/AndroidstudioProjects/sdkv22" />
+            </set>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
