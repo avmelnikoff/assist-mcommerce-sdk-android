@@ -4,6 +4,7 @@
     <extensionMap>
       <mapping ext="crt" type="PLAIN_TEXT" />
       <mapping ext="pem" type="PLAIN_TEXT" />
+      <mapping ext="der" type="PLAIN_TEXT" />
     </extensionMap>
   </component>
 </application>
