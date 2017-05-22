@@ -113,7 +113,7 @@ public class CustomerPaymentFragment extends PaymentFragment {
                 AssistPaymentData.Currency.RUB,
                 AssistPaymentData.Currency.USD,
                 AssistPaymentData.Currency.EUR,
-                AssistPaymentData.Currency.BYR
+                AssistPaymentData.Currency.BYN
         };
         data.setOrderCurrency(cur[pos]);
         data.setOrderComment(etOrderComment.getText().toString());
