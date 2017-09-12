@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    buildToolsVersion '25.0.3'
     defaultConfig {
         applicationId "ru.assisttech.assistsdk.github"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 10
-        versionName "1.4.2"
+        versionCode 11
+        versionName "1.5.0"
     }
     //
     // Signing Note (Test)
@@ -72,5 +72,11 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'io.card:android-sdk:5.5.1'
     compile 'com.android.support:appcompat-v7:25.3.1'
+    // Google Wallet
+    compile 'com.google.android.gms:play-services-auth:9.4.0'
+    compile 'com.google.android.gms:play-services-wallet:9.4.0'
+
+    compile 'com.github.mklimek:ssl-utils-android:1.0.1'
+
     compile project(':sdk')
 }

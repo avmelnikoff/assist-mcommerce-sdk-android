@@ -12,7 +12,7 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import ru.assisttech.sdk.engine.AssistBasePayEngine;
+import ru.assisttech.sdk.engine.AssistPayEngine;
 import ru.assisttech.sdk.engine.PayEngineListener;
 import ru.assisttech.sdk.storage.AssistTransaction;
 import ru.assisttech.sdk.storage.AssistTransactionStorage;
@@ -26,7 +26,7 @@ public class TransDetailsActivity extends UpButtonActivity implements PayEngineL
     private TextView osv;
     private TextView oiv;
 
-    private AssistBasePayEngine engine;
+    private AssistPayEngine engine;
     private AssistTransaction tr;
 
     private ProgressDialog dialog;
@@ -42,12 +42,12 @@ public class TransDetailsActivity extends UpButtonActivity implements PayEngineL
         engine = cfg.getPaymentEngine();
         AssistTransactionStorage storage = engine.transactionStorage();
 		
-		odv = (TextView) findViewById(R.id.tvtransDetailsOrderDate);
-		onv = (TextView) findViewById(R.id.tvtransDetailsOrderNo);
-		ocv = (TextView) findViewById(R.id.tvtransDetailsOrderComment);
-		oav = (TextView) findViewById(R.id.tvtransDetailsOrderAmount);
-		osv = (TextView) findViewById(R.id.tvtransDetailsOrderStatus);
-		oiv = (TextView) findViewById(R.id.tvtransDetailsOrderExtraInfo);
+		odv = (TextView) findViewById(R.id.tvOrderDate);
+		onv = (TextView) findViewById(R.id.tvOrderNumber);
+		ocv = (TextView) findViewById(R.id.tvOrderComment);
+		oav = (TextView) findViewById(R.id.tvOrderAmount);
+		osv = (TextView) findViewById(R.id.tvOrderStatus);
+		oiv = (TextView) findViewById(R.id.tvOrderExtraInfo);
 
 		Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -70,22 +70,34 @@ public class TransDetailsActivity extends UpButtonActivity implements PayEngineL
 		super.onConfigurationChanged(newConfig);
 	}
 
+    /**
+     * {@link PayEngineListener}
+     */
     @Override
     public void onFinished(Activity activity, AssistTransaction assistTransaction) {
         updateUI(assistTransaction);
         hideProgress();
     }
 
+    /**
+     * {@link PayEngineListener}
+     */
     @Override
     public void onCanceled(Activity activity, AssistTransaction assistTransaction) {
     }
 
+    /**
+     * {@link PayEngineListener}
+     */
     @Override
     public void onFailure(Activity activity, String info) {
         hideProgress();
         Toast.makeText(this, info, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * {@link PayEngineListener}
+     */
     @Override
     public void onNetworkError(Activity activity, String message) {
         hideProgress();

@@ -3,8 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/TestAssistSDK/TestAssistSDK.iml" filepath="$PROJECT_DIR$/TestAssistSDK/TestAssistSDK.iml" />
+      <module fileurl="file://$PROJECT_DIR$/assist-mcommerce-sdk-android.iml" filepath="$PROJECT_DIR$/assist-mcommerce-sdk-android.iml" />
       <module fileurl="file://$PROJECT_DIR$/sdk/sdk.iml" filepath="$PROJECT_DIR$/sdk/sdk.iml" />
-      <module fileurl="file://$PROJECT_DIR$/sdk_for_git.iml" filepath="$PROJECT_DIR$/sdk_for_git.iml" />
     </modules>
   </component>
 </project>

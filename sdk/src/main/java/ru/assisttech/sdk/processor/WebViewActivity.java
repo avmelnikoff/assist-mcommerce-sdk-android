@@ -13,38 +13,53 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import io.card.payment.CardIOActivity;
+import io.card.payment.CreditCard;
 import ru.assisttech.sdk.R;
+import ru.assisttech.sdk.cardreader.AssistCard;
+import ru.assisttech.sdk.engine.AssistPayEngine;
 
-
-public class WebViewActivity extends Activity implements AssistWebProcessor.WebPageViewer {
+/**
+ * Класс Activity для отображения и ввода данных в процессе оплаты банковской картой через web сервис Ассист
+ * {@link ru.assisttech.sdk.AssistAddress#WEB_SERVICE}
+ *
+ * Используется совместно с {@link AssistWebProcessor}
+ *
+ * Отображает содержимое HTML страниц в WebView.
+ * Осуществляет контроль за загружаемыми страницами.
+ * Заполняет поля для карточных данных на соответствующей странице.
+ * Запускает сканирование банковской карты камерой смартфона с использованием библиотеки card.io
+ */
+public class WebViewActivity extends Activity implements AssistWebProcessor.WebContentView {
 
     private static final String TAG = "WebViewActivity";
+
+    private static final String CARD_KEY = "wv_activity.scanned_card";
+    private static final int SCAN_REQUEST_CODE = 3;
     private static final int MENU_ITEM_ID = 5;
 
-    private FrameLayout placeholder;    /* used for WebView placement and makes it possible to remove WebView from Activity during screen rotation */
-    private WebView wv;
+    private ProgressBar progressBar;
+    private FrameLayout placeholder;
+    private WebView webView;
     private boolean enableMenu;
 
-    private static AssistWebProcessor webService;
+    private AssistCard assistCard;
+
+    private AssistWebProcessor webProcessor;
 
 	private static boolean ignoreSslErrors;
-	
-	public static void setService(AssistWebProcessor service) {
-		if (service != null) {
-            webService = service;
-        }
-	}
 
 	public static void setIgnoreSslErrors(boolean value) {
 		ignoreSslErrors = value;
@@ -53,14 +68,30 @@ public class WebViewActivity extends Activity implements AssistWebProcessor.WebP
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);   // Enable window progress bar
+        webProcessor =  AssistPayEngine.getInstance(this).getWebProcessor();
         initUI();
 	}
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (webProcessor.useCamera()) {
+            String url = webView.getUrl();
+            if (!TextUtils.isEmpty(url)) {
+                if (url.contains("pay.cfm") && webProcessor.isCardPageDetected()){
+                    enableMenu = true;
+                    invalidateOptionsMenu();
+                }
+            }
+        }
+    }
+
+	// Обработка поворота экрана.
+    // Просто отсоединяем от ActivityLayout экземпляр WebView, чтобы не пересоздавать его и не перезагружать страницу.
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        if (wv != null) {
-            placeholder.removeView(wv);
+        if (webView != null) {
+            placeholder.removeView(webView);
         }
         super.onConfigurationChanged(newConfig);
         initUI();
@@ -69,69 +100,49 @@ public class WebViewActivity extends Activity implements AssistWebProcessor.WebP
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        wv.saveState(outState);
+        webView.saveState(outState);
+        if (assistCard != null) {
+            outState.putParcelable(CARD_KEY, assistCard);
+        }
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        wv.restoreState(savedInstanceState);
-    }
+        webView.restoreState(savedInstanceState);
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (webService.useCamera()) {
-            String url = wv.getUrl();
-            if (!TextUtils.isEmpty(url)) {
-                if (url.contains("pay.cfm") && webService.isCardPageDetected()){
-                    enableMenu = true;
-                    invalidateOptionsMenu();
-                }
-            }
+        if (savedInstanceState.containsKey(CARD_KEY)) {
+            assistCard = savedInstanceState.getParcelable(CARD_KEY);
         }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     private void initUI() {
         setContentView(R.layout.web_activity);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         placeholder = (FrameLayout) findViewById(R.id.web_fragment);
 
-        if (wv == null) {
-            wv = new WebView(this);
-            wv.getSettings().setJavaScriptEnabled(true);
-            wv.getSettings().setLoadsImagesAutomatically(true);
-            wv.getSettings().setUseWideViewPort(true);
-            wv.getSettings().setLoadWithOverviewMode(true);
-            wv.getSettings().setBuiltInZoomControls(true);
-            wv.setWebViewClient(new PayWebViewClient());
-            wv.setWebChromeClient(new PayWebChromeClient());
+        if (webView == null) {
+            webView = new WebView(this);
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.getSettings().setLoadsImagesAutomatically(true);
+            webView.getSettings().setUseWideViewPort(true);
+            webView.getSettings().setLoadWithOverviewMode(true);
+            webView.getSettings().setBuiltInZoomControls(true);
+            webView.setWebViewClient(new PayWebViewClient());
+            webView.setWebChromeClient(new PayWebChromeClient());
             postRequest();
         }
-        wv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        placeholder.addView(wv);
+        webView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        // Подсоединяем готовый WebView к ActivityLayout
+        placeholder.addView(webView);
 
-        webService.onServiceActivityCreated(this);
+        webProcessor.onWebContentViewCreated(this);
     }
 
     @Override
 	public void onBackPressed() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.dlg_title_warning));
-		builder.setMessage(getString(R.string.dlg_msg_stop_payment_question));
-		builder.setPositiveButton(getString(android.R.string.yes), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-                webService.stopPayment();
-            }
-        });
-        builder.setNegativeButton(getString(android.R.string.no), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
-		AlertDialog dlg = builder.create();
-		dlg.show();
+        showAlert();
 	}
 
     @Override
@@ -146,27 +157,51 @@ public class WebViewActivity extends Activity implements AssistWebProcessor.WebP
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == MENU_ITEM_ID) {
-            webService.startCardScanning(this, this);
+            startCardScanning();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    // Обработка результата сканирование банковской карты камерой смартфона
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        webService.processActivityResult(requestCode, resultCode, data);
+        if (requestCode == SCAN_REQUEST_CODE) {
+            if (data != null && data.hasExtra(CardIOActivity.EXTRA_SCAN_RESULT)) {
+
+                assistCard = new AssistCard();
+
+                CreditCard scanResult = data.getParcelableExtra(CardIOActivity.EXTRA_SCAN_RESULT);
+                assistCard.setPan(scanResult.cardNumber);
+
+                if (scanResult.isExpiryValid()) {
+                    assistCard.setExpireMonth(scanResult.expiryMonth);
+                    assistCard.setExpireYear(scanResult.expiryYear);
+                }
+                fillInCardFields(assistCard.getPan(), assistCard.getExpireMonth(), assistCard.getExpireYear());
+            }
+        }
+    }
+
+    public void startCardScanning() {
+        Intent scanIntent = new Intent(this, CardIOActivity.class);
+        // customize these values to suit your needs.
+        scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_EXPIRY, true); 		// default: true
+        scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_CVV, false); 			// default: false
+        scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_POSTAL_CODE, false); 	// default: false
+
+        startActivityForResult(scanIntent, SCAN_REQUEST_CODE);
     }
 
     public void postRequest() {
-        String url = webService.getURL().toString();
-        String content = webService.buildRequest();
+        String url = webProcessor.getURL().toString();
+        String content = webProcessor.buildRequest();
         Log.d(TAG, "POST address: " + url);
         Log.d(TAG, "POST content: " + content);
-        wv.postUrl(url, content.getBytes());
+        webView.postUrl(url, content.getBytes());
     }
 
-    @Override
-    public void fillCardData(String number, String month, String year) {
+    public void fillInCardFields(String number, String month, String year) {
         String script = "function fillForm() {"
                 + "    document.getElementById('CardNumber').value='" + number + "';"
                 + "    var month = document.getElementById('ExpireMonth');"
@@ -185,12 +220,69 @@ public class WebViewActivity extends Activity implements AssistWebProcessor.WebP
                 + "    }"
                 + "};"
                 + "fillForm();";
-        wv.loadUrl("javascript:" + script);
+        webView.loadUrl("javascript:" + script);
         enableMenu = true;
         invalidateOptionsMenu();
     }
 
-    class PayWebChromeClient extends WebChromeClient {
+    /**
+     * {@link AssistWebProcessor.WebContentView}
+     */
+    @Override
+    public void provideCardData() {
+        if (assistCard == null) {
+            startCardScanning();
+        } else {
+            fillInCardFields(assistCard.getPan(), assistCard.getExpireMonth(), assistCard.getExpireYear());
+        }
+    }
+
+    /**
+     * {@link AssistWebProcessor.WebContentView}
+     */
+    @Override
+    public void close() {
+        finish();
+    }
+
+    private void showProgress() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void hideProgress() {
+        progressBar.setVisibility(View.GONE);
+    }
+
+    private void showAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.dlg_title_warning));
+        builder.setMessage(getString(R.string.dlg_msg_stop_payment_question));
+        builder.setPositiveButton(getString(android.R.string.yes), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                webProcessor.stopPayment();
+                finish();
+            }
+        });
+        builder.setNegativeButton(getString(android.R.string.no), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        AlertDialog dlg = builder.create();
+        dlg.show();
+    }
+
+    private URL StringToUrl(String url) {
+        try {
+            return new URL(url);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private class PayWebChromeClient extends WebChromeClient {
         @Override
         public void onProgressChanged(WebView view, int newProgress) {
             Log.d(TAG, "Progress: " + Integer.toString(newProgress));
@@ -198,7 +290,7 @@ public class WebViewActivity extends Activity implements AssistWebProcessor.WebP
         }
     }
 
-    class PayWebViewClient extends WebViewClient {
+    private class PayWebViewClient extends WebViewClient {
         // Set webview to ignore SSL error for pages with certificates unknown for Android
         // We check certificates manually using HttpsURLConnection
         @Override
@@ -215,10 +307,10 @@ public class WebViewActivity extends Activity implements AssistWebProcessor.WebP
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             Log.d(TAG, "shouldOverrideUrlLoading(): " + url);
             if (url.contains("result.cfm")) {
-                webService.parseResultPage(toURL(url));
+                webProcessor.parseResultPage(StringToUrl(url));
                 return true;
             } else if (url.contains("body.cfm")) {
-                webService.parseErrorPage(toURL(url));
+                webProcessor.parseErrorPage(StringToUrl(url));
                 return true;
             } else {
                 return false;
@@ -228,33 +320,23 @@ public class WebViewActivity extends Activity implements AssistWebProcessor.WebP
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             Log.d(TAG, "PageStarted: " + url);
-            setProgressBarIndeterminateVisibility(true);
+            showProgress();
             enableMenu = false;
             invalidateOptionsMenu();
-            wv.setScrollX(0);
-            wv.setScrollY(0);
+            webView.setScrollX(0);
+            webView.setScrollY(0);
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
             Log.d(TAG, "PageFinished: " + url);
-            setProgressBarIndeterminateVisibility(false);
+            hideProgress();
 
             if (url.contains("body.cfm")) {
-                webService.parseErrorPage(toURL(url));
-            } else if (webService.useCamera() && url.contains("pay.cfm")) {
-                webService.lookForCardFields(toURL(url), WebViewActivity.this);
+                webProcessor.parseErrorPage(StringToUrl(url));
+            } else if (webProcessor.useCamera() && url.contains("pay.cfm")) {
+                webProcessor.lookForCardFields(StringToUrl(url));
             }
         }
-    }
-
-    private URL toURL(String url) {
-        URL u = null;
-        try {
-            u = new URL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return u;
     }
 }

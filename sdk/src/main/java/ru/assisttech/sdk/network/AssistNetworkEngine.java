@@ -11,14 +11,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,7 +27,6 @@ import javax.net.ssl.SSLContext;
 public class AssistNetworkEngine {
 	
 	private static final String TAG = "AssistNetworkEngine";
-	private static final String DEFAULT_IP = "0.0.0.0";
 													
 	private SSLContextFactory sslContextFactory;
 	private SSLContext sslContext;
@@ -63,24 +58,7 @@ public class AssistNetworkEngine {
 			e.printStackTrace();
 		}
 	}	
-	
-	public static String getDeviceIP(){				
-		try {
-			for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-				NetworkInterface intf = en.nextElement();
-				for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-					InetAddress inetAddress = enumIpAddr.nextElement();			            
-			        if ((inetAddress instanceof Inet4Address) && (!inetAddress.isLoopbackAddress())) {
-			        	return inetAddress.getHostAddress();
-			        }
-			    }
-			}
-		} catch (Exception ex) {
-		    Log.e(TAG, ex.toString());
-		}
-		return DEFAULT_IP;
-	}
-	
+
 	public boolean addCertificate(Certificate cert) {
 		return sslContextFactory.addCertificate(cert);
 	}

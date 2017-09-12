@@ -1,6 +1,6 @@
 package ru.assisttech.sdk.registration;
 
-public abstract class RegistrationRequestBuilder {
+public class RegistrationRequestBuilder {
 
     private static final String ENVELOPE_NAMESPACE = "\"http://schemas.xmlsoap.org/soap/envelope/\"";
     private static final String NAMESPACE = "ns1";
@@ -12,11 +12,9 @@ public abstract class RegistrationRequestBuilder {
 
     private AssistRegistrationData data;
 
-    RegistrationRequestBuilder(AssistRegistrationData data) {
+    public RegistrationRequestBuilder(AssistRegistrationData data) {
         this.data = data;
     }
-
-    abstract void modifyRequest(AssistRegistrationData data, StringBuilder request);
 
     String buildRequest() {
         StringBuilder request = new StringBuilder();
@@ -38,8 +36,6 @@ public abstract class RegistrationRequestBuilder {
         request.append("<" + DEVICE_UNIQUE_ID + ">");
         request.append(data.getDeviceID());
         request.append("</" + DEVICE_UNIQUE_ID + ">");
-
-        modifyRequest(data, request);
 
         request.append("</" + NAMESPACE + ":getRegistration>");
         request.append("</s11:Body>");

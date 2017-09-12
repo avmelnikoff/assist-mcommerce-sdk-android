@@ -1,115 +1,215 @@
 package ru.assisttech.assistsdk;
 
-import android.app.ActionBar;
-import android.app.FragmentTransaction;
-import android.content.SharedPreferences;
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.Spinner;
 
-public class MainActivity extends FragmentActivity implements ActionBar.TabListener {
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+
+import ru.assisttech.sdk.AssistPaymentData;
+import ru.assisttech.sdk.AssistSDK;
+import ru.assisttech.sdk.engine.AssistPayEngine;
+
+/**
+ * Главный экран приложения.
+ *
+ * Здесь вводятся данные платежа, информация о магазине и сервере
+ */
+public class MainActivity extends FragmentActivity {
 
     private static final String TAG = "MainActivity";
 
-    private static final String TAB_INDEX = "tab_index";
+    private static final String DEFAULT_MID = "679471";
+    private static final String DEFAULT_LOGIN = "admin679471";
+    private static final String DEFAULT_PASSWORD = "admin679471";
 
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
-	
+    private String[] urls = {
+            "https://payments.t.paysecure.ru",
+            "https://test.paysec.by",
+            "https://payments.paysec.by",
+            "https://test.paysecure.ru",
+            "https://payments.paysecure.ru"
+    };
+
+    private EditText etMerchantId;
+    private EditText etLogin;
+    private EditText etPassword;
+    private EditText etOrderNumber;
+    private EditText etOrderAmount;
+    private Spinner spCurrency;
+    private EditText etOrderComment;
+    private EditText etCustomerNumber;
+    private EditText etSignature;
+    private Spinner spURL;
+    private CheckBox cbUseCamera;
+    private Button btPay;
+    private Button btLog;
+
+    protected ApplicationConfiguration configuration;
+    private AssistPayEngine engine;
+    protected AssistPaymentData data;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-        final ActionBar actionBar = getActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        engine = AssistSDK.getPayEngine(this);
+        engine.setServerURL("https://payments.t.paysecure.ru");
 
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        initPaymentData();
+        configuration = ApplicationConfiguration.getInstance();
 
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        etMerchantId = (EditText)findViewById(R.id.etMerchantID);
+        etLogin = (EditText)findViewById(R.id.etLogin);
+        etPassword = (EditText)findViewById(R.id.etPassword);
+
+        etOrderNumber = (EditText)findViewById(R.id.etOrderNumber);
+        etOrderAmount = (EditText)findViewById(R.id.etOrderAmount);
+        spCurrency = (Spinner)findViewById(R.id.spCurrency);
+        etOrderComment = (EditText)findViewById(R.id.etOrderComment);
+        etCustomerNumber = (EditText)findViewById(R.id.etCustomerNumber);
+        etSignature = (EditText)findViewById(R.id.etSignature);
+        spURL = (Spinner)findViewById(R.id.spURL);
+        cbUseCamera = (CheckBox)findViewById(R.id.cbUseCamera);
+        btPay = (Button)findViewById(R.id.btPay);
+        btLog = (Button)findViewById(R.id.btLog);
+
+        // Set defaults
+        etMerchantId.setText(DEFAULT_MID);
+        etLogin.setText(DEFAULT_LOGIN);
+        etPassword.setText(DEFAULT_PASSWORD);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.currency,
+                android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
+        spCurrency.setAdapter(adapter);
+
+        ArrayAdapter<String> urlsAdapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                urls
+        );
+        urlsAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
+        spURL.setAdapter(urlsAdapter);
+        btPay.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
+            public void onClick(View v) {
+                startPayment();
             }
         });
-
-        for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(mSectionsPagerAdapter.getPageTitle(i))
-                            .setTabListener(this));
-        }
+        btLog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setConfiguration();
+                startActivity(new Intent(MainActivity.this, TransactionsActivity.class));
+            }
+        });
 	}
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        SharedPreferences pref = getPreferences(MODE_PRIVATE);
-        mViewPager.setCurrentItem(pref.getInt(TAB_INDEX, 0));
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        SharedPreferences pref = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor e = pref.edit();
-        e.putInt(TAB_INDEX, mViewPager.getCurrentItem());
-        e.commit();
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            case R.id.action_customer:
+                startActivity(new Intent(this, CustomerActivity.class));
+                return true;
+            case R.id.action_about:
+                startActivity(new Intent(this, AboutActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        // When the given tab is selected, tell the ViewPager to switch to the corresponding page.
-        mViewPager.setCurrentItem(tab.getPosition());
+    @SuppressLint("TrulyRandom")
+    protected void initPaymentData() {
+        data = new AssistPaymentData();
+        data.clear();
+        data.setYMPayment(false);
+        data.setWMPayment(false);
+        data.setQIWIPayment(false);
+        data.setQIWIMegafonPayment(false);
+        data.setQIWIMtsPayment(false);
+        data.setQIWIBeelinePayment(false);
+
+        // Generate key
+        KeyPairGenerator kpg;
+        try {
+            kpg = KeyPairGenerator.getInstance("RSA");
+            kpg.initialize(1024);
+            KeyPair keyPair = kpg.genKeyPair();
+            data.setPrivateKey(keyPair.getPrivate());
+        } catch (NoSuchAlgorithmException e1) {
+            e1.printStackTrace();
+        }
     }
 
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        // Not used
+    private void assemblePaymentData() {
+        data.setMerchantId(etMerchantId.getText().toString());
+        data.setLogin(etLogin.getText().toString());
+        data.setPassword(etPassword.getText().toString());
+        data.setOrderNumber(etOrderNumber.getText().toString());
+        data.setOrderAmount(etOrderAmount.getText().toString());
+
+        int pos = spCurrency.getSelectedItemPosition();
+        AssistPaymentData.Currency[] cur = {
+                AssistPaymentData.Currency.RUB,
+                AssistPaymentData.Currency.USD,
+                AssistPaymentData.Currency.EUR,
+                AssistPaymentData.Currency.BYN
+        };
+        data.setOrderCurrency(cur[pos]);
+        data.setOrderComment(etOrderComment.getText().toString());
+        data.setCustomerNumber(etCustomerNumber.getText().toString());
+        if (etSignature.getText().length() > 0) {
+            data.setSignature(etSignature.getText().toString());
+        }
+
+        CustomerActivity.setContactData(data);
+        CustomerActivity.setCustomerData(data);
+        CustomerActivity.setCustomerExData(data);
+        SettingsActivity.setSettings(data);
+        SettingsActivity.setPaymentMode(data);
+        SettingsActivity.setRecurringData(data);
     }
 
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        // Not used
+    private void setConfiguration() {
+        engine.setServerURL(urls[spURL.getSelectedItemPosition()]);
+        configuration.setPayEngine(engine);
+        configuration.setServer(urls[spURL.getSelectedItemPosition()]);
+        configuration.setUseCamera(cbUseCamera.isChecked());
+        configuration.setPaymentData(data);
     }
 
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-
-            switch (position) {
-                case 0:
-                    return new CustomerPaymentFragment();
-                default:
-                    Log.e(TAG, "Wrong tag position");
-                    return null;
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return 1;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return CustomerPaymentFragment.getTitle();
-            }
-            return null;
-        }
+    private void startPayment() {
+        assemblePaymentData();
+        setConfiguration();
+        // К экрану подтверждения данных оплаты
+        Intent i = new Intent(this, ConfirmationActivity.class);
+        startActivity(i);
     }
 }

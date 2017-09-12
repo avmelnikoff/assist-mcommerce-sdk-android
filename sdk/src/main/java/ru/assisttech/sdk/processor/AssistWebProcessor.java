@@ -1,6 +1,5 @@
 package ru.assisttech.sdk.processor;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Base64;
@@ -23,78 +22,55 @@ import java.security.SignatureException;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import io.card.payment.CardIOActivity;
-import io.card.payment.CreditCard;
 import ru.assisttech.sdk.AssistMerchant;
 import ru.assisttech.sdk.AssistPaymentData;
 import ru.assisttech.sdk.AssistResult;
 import ru.assisttech.sdk.AssistSDK;
 import ru.assisttech.sdk.FieldName;
-import ru.assisttech.sdk.cardreader.AssistCard;
-import ru.assisttech.sdk.identification.InstallationInfo;
-import ru.assisttech.sdk.identification.SystemInfo;
-import ru.assisttech.sdk.network.AssistNetworkEngine.NetworkResponseProcessor;
-
 import ru.assisttech.sdk.R;
+import ru.assisttech.sdk.identification.InstallationInfo;
+import ru.assisttech.sdk.network.AssistNetworkEngine.NetworkResponseProcessor;
 import ru.assisttech.sdk.network.HttpResponse;
 
+/**
+ * Класс вызова и обработки ответов web сервиса Ассист {@link ru.assisttech.sdk.AssistAddress#WEB_SERVICE}
+ * Используется совместно с классом {@link WebViewActivity}
+ *
+ * Парсит страницы во время проведения платежа для контроля за процессом оплаты и получения результата.
+ */
 public class AssistWebProcessor extends AssistBaseProcessor {
 	
 	private static final String TAG = "AssistWebService";
-
-	protected static final int SCAN_REQUEST_CODE = 3;
 	private static final int NOT_FOUND = -1;
 
-	private boolean useCamera;
-	private Activity webViewActivity;
+	private WebContentView webContentView;
 	private URL errorURL;
-	private CardPageHandler cardPageHandler;
+	private CardPageScanner cardPageScanner;
 
+	private boolean useCamera;
     private boolean resultParsingIsInProcess;
 
-	public interface WebPageViewer {
-        void fillCardData(String number, String month, String year);
+	interface WebContentView {
+		void provideCardData();
+		void close();
 	}
 
 	public AssistWebProcessor(Context context, AssistProcessorEnvironment environment, boolean useCamera) {
 		super(context, environment);
 		this.useCamera = useCamera;
-		cardPageHandler = new CardPageHandler();
+		cardPageScanner = new CardPageScanner();
 	}
 
-    public void lookForCardFields(URL page, WebPageViewer viewer) {
-
-        cardPageHandler.setViewer(viewer);
-
+	// Загрузить и проверить страницу на наличие полей ввода данных карты
+    void lookForCardFields(URL page) {
         getNetEngine().loadAndProcessPage(
                 page,
                 new NetworkConnectionErrorListener(),
-                cardPageHandler.getDetector()
+				cardPageScanner
         );
     }
 
-    public void startCardScanning(Activity caller, WebPageViewer viewer) {
-
-        cardPageHandler.setViewer(viewer);
-
-        Intent scanIntent = new Intent(caller, CardIOActivity.class);
-        // customize these values to suit your needs.
-        scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_EXPIRY, true); 		// default: true
-        scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_CVV, false); 			// default: false
-        scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_POSTAL_CODE, false); 	// default: false
-
-        caller.startActivityForResult(scanIntent, SCAN_REQUEST_CODE);
-    }
-
-	public void processActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (requestCode) {
-		case SCAN_REQUEST_CODE:
-			finishCardScanning(requestCode, data);
-			break;
-		}
-	}
-
-    public void parseResultPage(URL resultPageUrl) {
+    void parseResultPage(URL resultPageUrl) {
         if (!resultParsingIsInProcess) {
             resultParsingIsInProcess = true;
             getNetEngine().loadAndProcessPage(
@@ -105,7 +81,7 @@ public class AssistWebProcessor extends AssistBaseProcessor {
         }
     }
 
-    public void parseErrorPage(URL errorPageUrl) {
+    void parseErrorPage(URL errorPageUrl) {
         errorURL = errorPageUrl;
         getNetEngine().loadAndProcessPage(
                 errorPageUrl,
@@ -117,18 +93,18 @@ public class AssistWebProcessor extends AssistBaseProcessor {
     /**
      * Supposed to be called from WebViewActivity to interrupt payment process
      */
-    public void stopPayment() {
+    void stopPayment() {
         if (hasListener()) {
             getListener().onTerminated(getTransaction().getId());
         }
         finish();
     }
 	
-	void onServiceActivityCreated(Activity activity) {
-		webViewActivity = activity;
-        if (hasListener()) {
-            getListener().onActivityCreated(activity);
-        }
+	void onWebContentViewCreated(WebContentView view) {
+		webContentView = view;
+//        if (hasListener()) {
+//            getListener().onActivityCreated(activity);
+//        }
 	}
 	
 	boolean useCamera() {
@@ -136,18 +112,24 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 	}
 
 	boolean isCardPageDetected() {
-		return cardPageHandler.isPageDetected();
+		return cardPageScanner.isPageDetected();
+	}
+
+	private void onCardPageDetected() {
+		webContentView.provideCardData();
 	}
 
     @Override
     protected void run() {
-        WebViewActivity.setService(this);
         WebViewActivity.setIgnoreSslErrors(getNetEngine().isCustomSslCertificateUsed());
         getCaller().startActivity(new Intent(getCaller(), WebViewActivity.class));
     }
 
     @Override
     protected void terminate() {
+		if (webContentView != null) {
+			webContentView.close();
+		}
         getNetEngine().stopTasks();
     }
 	
@@ -158,7 +140,6 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 
         AssistPaymentData data = getEnvironment().getData();
         AssistMerchant m = getEnvironment().getMerchant();
-        SystemInfo sysInfo = getEnvironment().getPayEngine().getSystemInfo();
         InstallationInfo iInfo = getEnvironment().getPayEngine().getInstInfo();
 
 		StringBuilder content = new StringBuilder();
@@ -190,17 +171,11 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 			}
 
             // Mobile application specific parameters
-	        content.append(URLEncoder.encode(FieldName.Latitude, "UTF-8")).append("=");
-	        content.append(URLEncoder.encode(sysInfo.lattitude(), "UTF-8")).append("&");
-
-	        content.append(URLEncoder.encode(FieldName.Longitude, "UTF-8")).append("=");
-	        content.append(URLEncoder.encode(sysInfo.longitude(), "UTF-8")).append("&");
-
             content.append(URLEncoder.encode(FieldName.Device, "UTF-8")).append("=");
-	        content.append(URLEncoder.encode(sysInfo.device(), "UTF-8")).append("&");
+	        content.append(URLEncoder.encode("CommerceSDK", "UTF-8")).append("&");
 
 	        content.append(URLEncoder.encode(FieldName.DeviceUniqueID, "UTF-8")).append("=");
-	        content.append(URLEncoder.encode(sysInfo.fingerprint(), "UTF-8")).append("&");
+	        content.append(URLEncoder.encode(iInfo.getDeiceUniqueId(), "UTF-8")).append("&");
 
 	        content.append(URLEncoder.encode(FieldName.ApplicationName, "UTF-8")).append("=");
 	        content.append(URLEncoder.encode(iInfo.appName(), "UTF-8")).append("&");
@@ -211,14 +186,8 @@ public class AssistWebProcessor extends AssistBaseProcessor {
             content.append(URLEncoder.encode(FieldName.SDKVersion, "UTF-8")).append("=");
 			content.append(URLEncoder.encode(AssistSDK.getSdkVersion(), "UTF-8")).append("&");
 
-	        content.append(URLEncoder.encode(FieldName.MacAddress, "UTF-8")).append("=");
-	        content.append(URLEncoder.encode(sysInfo.macAddress(), "UTF-8")).append("&");
-
-	        content.append(URLEncoder.encode(FieldName.AndroidID, "UTF-8")).append("=");
-	        content.append(URLEncoder.encode(sysInfo.androidID(), "UTF-8")).append("&");
-
-	        content.append(URLEncoder.encode(FieldName.OsLanguage, "UTF-8")).append("=");
-	        content.append(URLEncoder.encode(sysInfo.language(), "UTF-8")).append("&");
+//	        content.append(URLEncoder.encode(FieldName.OsLanguage, "UTF-8")).append("=");
+//	        content.append(URLEncoder.encode(sysInfo.language(), "UTF-8")).append("&");
 
             String regId = getEnvironment().getPayEngine().getRegistrationId();
 	        content.append(URLEncoder.encode(FieldName.registration_id, "UTF-8")).append("=");
@@ -233,25 +202,6 @@ public class AssistWebProcessor extends AssistBaseProcessor {
         	e.printStackTrace();
         }
         return content.toString();
-	}
-		
-	private void finishCardScanning(int requestCode, Intent data) {
-
-        if (requestCode == SCAN_REQUEST_CODE) {
-            if (data != null && data.hasExtra(CardIOActivity.EXTRA_SCAN_RESULT)) {
-
-                AssistCard assistCard = new AssistCard();
-
-                CreditCard scanResult = data.getParcelableExtra(CardIOActivity.EXTRA_SCAN_RESULT);
-                assistCard.setPan(scanResult.cardNumber);
-
-                if (scanResult.isExpiryValid()) {
-                    assistCard.setExpireMonth(scanResult.expiryMonth);
-                    assistCard.setExpireYear(scanResult.expiryYear);
-                }
-                cardPageHandler.fillInPage(assistCard);
-            }
-        }
 	}
 
 	/**
@@ -269,7 +219,7 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 		private String OrderAmount;
 		private String OrderCurrency;
 
-		public void check4Signature(String fieldName, String value) {
+		void check4Signature(String fieldName, String value) {
 			switch (fieldName) {
 				case MERCHANT_ID:
 					Merchant_ID = value;
@@ -286,7 +236,7 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 			}
 		}
 
-		public String calculateSignature(PrivateKey key) {
+		String calculateSignature(PrivateKey key) {
 
 			String input = Merchant_ID + ";"
 					     + OrderNumber + ";"
@@ -314,7 +264,7 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 	}
 	
 	/**
-	 * Parses web page for error description {@link NetworkResponseProcessor}
+	 * Парсер страницы с информацией об ошибке
 	 */
 	private class ErrorPageProcessor implements NetworkResponseProcessor {
 
@@ -356,6 +306,9 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 				}
 			}
 			resultInfo += (": " + errorInfo);
+            if (webContentView != null) {
+                webContentView.close();
+            }
             if (hasListener()) {
                 getListener().onError(getTransaction().getId(), resultInfo);
             }
@@ -364,96 +317,56 @@ public class AssistWebProcessor extends AssistBaseProcessor {
 	}
 
 	/**
-	 * Tries to find out if there are card data fields on the page
+	 * Класс парсинга HTML страницы на предмет наличия поля для ввода номера карты
+	 * {@link CardPageScanner#CARD_NUMBER}
 	 */
-	private class CardPageHandler {
+	private class CardPageScanner implements NetworkResponseProcessor {
 
-		private CardFieldDetector detector = new CardFieldDetector();
-		private boolean pageDetected;
-        private WebPageViewer viewer;
-        private AssistCard card;
+		static final String CARD_NUMBER = "CardNumber";
 
-        public CardFieldDetector getDetector() {
-            return detector;
-        }
+		private boolean isDetected;
 
-        private void setPageDetected(boolean value) {
-            pageDetected = value;
-        }
-
-		public boolean isPageDetected() {
-			return pageDetected;
+		boolean isPageDetected() {
+			return isDetected;
 		}
 
-        public void setViewer(WebPageViewer viewer) {
-            this.viewer = viewer;
-        }
-
-        private WebPageViewer getViewer() {
-            return viewer;
-        }
-
-        void fillInPage(AssistCard assistCard) {
-            card = assistCard;
-            viewer.fillCardData(assistCard.getPan(), assistCard.getExpireMonth(), assistCard.getExpireYear());
-        }
-
-        private AssistCard getCard () {
-            return card;
-        }
-
-		/**
-		 * Parses web page and finds out if there is card number field
-		 */
-		private class CardFieldDetector implements NetworkResponseProcessor {
-
-			public static final String CARD_NUMBER = "CardNumber";
-			private Document doc;
-			private boolean isDetected;
-
-			@Override
-			public void asyncProcessing(HttpResponse response) {
-                isDetected = false;
-				try {
-                    // Parse and check HTML page
-					doc = Jsoup.parse(response.getData());
-					Element cn = doc.getElementById(CARD_NUMBER);
-					if (cn != null) {
-                        isDetected = true;
-					}
-				} catch (NullPointerException e) {
-					e.printStackTrace();
+		@Override
+		public void asyncProcessing(HttpResponse response) {
+			isDetected = false;
+			try {
+				// Parse and check HTML page
+				Document doc = Jsoup.parse(response.getData());
+				Element cn = doc.getElementById(CARD_NUMBER);
+				if (cn != null) {
+					isDetected = true;
 				}
-			}
-
-			@Override
-			public void syncPostProcessing() {
-                setPageDetected(isDetected);
-				if (isDetected) {
-                    AssistCard card = getCard();
-                    if (card == null) {
-                        startCardScanning(webViewActivity, viewer);
-                    } else {
-                        getViewer().fillCardData(card.getPan(), card.getExpireMonth(), card.getExpireYear());
-                    }
-				}
+			} catch (NullPointerException e) {
+				e.printStackTrace();
 			}
 		}
+
+		@Override
+		public void syncPostProcessing() {
+			if (isDetected) {
+				onCardPageDetected();
+			}
+		}
+
 	}
 
 	/**
-	 * Parses web page for payment status and additional information {@link NetworkResponseProcessor}
+	 * Парсер страницы с результатом платежа
 	 */
 	private class ResultPageProcessor implements NetworkResponseProcessor {
 		
-		public static final String SUCCESS_URL = "http://succeed_payment.url/";
-		public static final String DECLINE_URL = "http://declined_payment.url/";
-		
-		protected String info = null;
-		protected String billNumber = null;
-		protected String orderNumber = null;
-		protected boolean approved = true;
-		protected boolean error = false;
+		static final String SUCCESS_URL = "http://succeed_payment.url/";
+		static final String DECLINE_URL = "http://declined_payment.url/";
+
+		private String info = null;
+		private String billNumber = null;
+		private String orderNumber = null;
+		private boolean approved = true;
+		private boolean error = false;
 
 		@Override
 		public void asyncProcessing(HttpResponse response) {
@@ -538,10 +451,7 @@ public class AssistWebProcessor extends AssistBaseProcessor {
             resultParsingIsInProcess = false;
 		}
 	}
-	
-	/**
-	 * Concatenates two strings
-	 */
+
 	private String buildMessage(int stringId, String exceptionText){
 		return getContext().getString(stringId) + ". (" + exceptionText + ")";
 	}	

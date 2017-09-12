@@ -95,5 +95,6 @@ public class FieldName {
 	public static final String RestrictedTickedInd = "RestrictedTickedInd";
 	public static final String PNR = "PNR";
 	public static final String DepartureDate = "DepartureDate";
-	public static final String EMV = "EMV";			
+	public static final String EMV = "EMV";
+	public static final String PaymentToken = "PaymentToken";
 }
