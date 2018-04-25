@@ -23,6 +23,7 @@ Assist Mobile SDK
 Так же здесь представлен пример работы с кошельком Google в рамках работы с AndroidPay.
 
 **Поддержка AndroidPay**
+
 Для работы с AndroidPay рекомендуется предварительно ознакомиться с документацией на сайте разработчика
 https://developers.google.com/android-pay/.
 
