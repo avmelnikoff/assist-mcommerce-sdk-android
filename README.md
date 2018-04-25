@@ -29,3 +29,8 @@ https://developers.google.com/android-pay/.
 Поэтому для определения возможности проведения тестового платежа требуется связаться
 со службой поддержки Ассист support@assist.ru
 
+*SamsungPay support*
+To use SamsungPay in your app, you need register your company on Samsung web site, register your app in samsung and download and use in your app SamsungPay SDK. See http://www.samsung.com/ru/apps/mobile/samsungpay/
+Then you need create and sign certificate in samsung and provide it to assist through support@assist.ru with your merchant account to activate SamsungPay for your account in assist.
+In your application you should use SamsungPay SDK to start payment with SamsungPay as it described in documentation wich you get from Samsung.
+When you get payment data from SamsungPay you need to use AssistPayEngine.payToken() to start payment in Assist.
