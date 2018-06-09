@@ -48,16 +48,16 @@ public class AssistCancelProcessor extends AssistBaseProcessor {
     private String buildRequest(String merchantID, String login, String password, String billNumber) {
 
         return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:ws=\"http://www.paysecure.ru/ws/\">" +
-        "<soapenv:Header/>" +
-        "<soapenv:Body>" +
-        "<ws:WSCancelRequestParams>" +
-        "<billnumber>" + billNumber + "</billnumber>" +
-        "<merchant_id>" + merchantID + "</merchant_id>" +
-        "<login>" + login + "</login>" +
-        "<password>" + password + "</password>" +
-        "</ws:WSCancelRequestParams>" +
-        "</soapenv:Body>" +
-        "</soapenv:Envelope>";
+                "<soapenv:Header/>" +
+                "<soapenv:Body>" +
+                "<ws:WSCancelRequestParams>" +
+                "<billnumber>" + billNumber + "</billnumber>" +
+                "<merchant_id>" + merchantID + "</merchant_id>" +
+                "<login>" + login + "</login>" +
+                "<password>" + password + "</password>" +
+                "</ws:WSCancelRequestParams>" +
+                "</soapenv:Body>" +
+                "</soapenv:Envelope>";
     }
 
     /**

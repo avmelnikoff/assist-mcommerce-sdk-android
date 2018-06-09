@@ -1,0 +1,108 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp">
+
+            <TextView
+                android:id="@+id/tvServer"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/confirm_activity_field_height"
+                android:gravity="center_vertical"
+                tools:text="https://payments.t.paysecure.ru" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@android:color/darker_gray" />
+
+            <TextView
+                android:id="@+id/tvMerchant"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/confirm_activity_field_height"
+                android:gravity="center_vertical"
+                tools:text="123456 [user] [password]"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@android:color/darker_gray" />
+
+            <TextView
+                android:id="@+id/tvOrderNumber"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/confirm_activity_field_height"
+                android:gravity="center_vertical"
+                tools:text="123444444"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@android:color/darker_gray" />
+
+            <TextView
+                android:id="@+id/tvOrderAmount"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/confirm_activity_field_height"
+                android:gravity="center_vertical"
+                tools:text="100 RUB"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@android:color/darker_gray" />
+
+            <TextView
+                android:id="@+id/tvOrderComment"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/confirm_activity_field_height"
+                android:gravity="center_vertical"
+                tools:text="comment"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@android:color/darker_gray" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        <Button
+            android:id="@+id/btPay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/pay_web_btn_text" />
+
+        <TextView
+            android:id="@+id/android_pay_message"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:text="@string/android_pay_not_installed_message"
+            android:background="@android:color/darker_gray"
+            android:visibility="gone"/>
+
+        <FrameLayout
+            android:id="@+id/dynamic_wallet_button_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="48dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -11,15 +11,25 @@ public class AssistPaymentData {
 	
 	private Map<String, String> values;
 	private String merchantID;
+	private String login;
+	private String password;
 	private PrivateKey privateKey;
 	private ArrayList<AssistOrderItem> orderItems;
 
-	public AssistPaymentData() {
+    public AssistPaymentData() {
 		values = new HashMap<>();
 	}
 
 	public void setMerchantId(String value) {
 		merchantID = value;
+	}
+
+	public void setLogin(String value) {
+		login = value;
+	}
+
+	public void setPassword(String value) {
+		password = value;
 	}
 	
 	public void setDelay(boolean value) {
@@ -53,6 +63,10 @@ public class AssistPaymentData {
 	public void setOrderCurrency(Currency value) {
 		values.put(FieldName.OrderCurrency, value.toString());
 	}
+
+    public void setPaymentToken(String value) {
+        values.put(FieldName.PaymentToken, value.toString());
+    }
 
 	public void setLastname(String value) {
 		values.put(FieldName.Lastname, value);
@@ -338,6 +352,14 @@ public class AssistPaymentData {
         return merchantID;
 	}
 
+	public String getLogin() {
+		return login;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
 	public PrivateKey getPrivateKey() {
 		return privateKey;
 	}
@@ -354,8 +376,7 @@ public class AssistPaymentData {
 		values = new HashMap<>();
 	}
 
-	
-	/**
+    /**
 	 * Language
 	 * @author sergei
 	 *

@@ -20,4 +20,6 @@
 	<string name="menu_item_bt_pref">BT настройки</string>
 	<string name="menu_item_reset_filter">Сбросить</string>
 
+	<string name="public_key">BC6b+gSgJxhlpAMUogrq9i8jnrAAdGgocpqiOqIDsfeMlD7RZUc3uJ/1Q8F4jcOL9+yziLDlq78HQmb43s41M/g=</string>
+
 </resources>

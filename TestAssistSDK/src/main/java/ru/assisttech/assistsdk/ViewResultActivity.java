@@ -2,7 +2,6 @@ package ru.assisttech.assistsdk;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -12,11 +11,8 @@ import ru.assisttech.sdk.storage.AssistTransaction;
 
 public class ViewResultActivity extends Activity {
 
-    public static final String TAG = "ViewResultActivity";
     public static final String TRANSACTION_ID_EXTRA = "transaction_id_extra";
-
 	private long transactionID;
-    private AssistTransaction transaction;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,18 +27,7 @@ public class ViewResultActivity extends Activity {
 		toMainScreen();		
 	}
 
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-	}
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
     private void initUI() {
-
         TextView tvResultOrderNumber = (TextView) findViewById(R.id.tvResultOrderNumber);
         TextView tvResultOrderComment = (TextView) findViewById(R.id.tvResultOrderComment);
         TextView tvResultOrderAmount = (TextView) findViewById(R.id.tvResultOrderAmount);
@@ -50,7 +35,7 @@ public class ViewResultActivity extends Activity {
         TextView tvResultInfo = (TextView) findViewById(R.id.tvResultExtraInfo);
 
         ApplicationConfiguration cfg = ApplicationConfiguration.getInstance();
-        transaction = cfg.getPaymentEngine().transactionStorage().getTransaction(transactionID);
+        AssistTransaction transaction = cfg.getPaymentEngine().transactionStorage().getTransaction(transactionID);
         if(transaction != null){
             tvResultOrderNumber.setText(transaction.getOrderNumber());
             tvResultOrderComment.setText(transaction.getOrderComment());
@@ -66,15 +51,8 @@ public class ViewResultActivity extends Activity {
                     extraInfo += transaction.getResult().getExtra();
                 }
                 tvResultInfo.setText(extraInfo);
-
-                if(transaction.getPaymentMethod() == AssistTransaction.PaymentMethod.CASH)
-                {
-                    TextView tvMode = (TextView) findViewById(R.id.tvResultPaymentMode);
-                    tvMode.setText("Cash");
-                }
             }
         }
-
         findViewById(R.id.btnResultClose).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

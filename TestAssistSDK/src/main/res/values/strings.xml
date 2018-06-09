@@ -7,9 +7,8 @@
     <string name="app_version">Версия: %1$s</string>
     <string name="sdk_version">Версия SDK: %1$s</string>
 
-    <string name="action_settings">Settings</string>
-    <string name="action_customer">Customer</string>
-    <string name="action_printer">Fiscal Printer</string>
+    <string name="action_settings">Настройки платежа</string>
+    <string name="action_customer">О покупателе</string>
 
     <string name="payWeb">Pay Web</string>
 
@@ -23,7 +22,7 @@
         <item>RUB</item>
         <item>USD</item>
         <item>EUR</item>
-        <item>BYR</item>
+        <item>BYN</item>
     </string-array>
 
     <string name="please_wait">Пожалуйста, подождите&#8230;</string>
@@ -44,5 +43,30 @@
     <string name="transactions_filter">Фильтр</string>
     <string name="transactions_delete_1_month_old">Удалить старше месяца</string>
     <string name="transactions_delete_2_weeks_old">Удалить старше 2х месяцев</string>
+
+    <string name="result_title">Результат</string>
+    <string name="order_state_label">Статус заказа:</string>
+    <string name="order_number_label">Номер заказа:</string>
+    <string name="order_amount_label">Сумма заказа:</string>
+    <string name="order_comment_label">Комментарий:</string>
+    <string name="order_extra_info_label">Доп. информация:</string>
+    <string name="result_close_button_text">Закрыть</string>
+    <string name="default_order_amount">10.11</string>
+    <string name="merchant_id_label">Номер магазина в Ассист (Merchant ID):</string>
+    <string name="login_label">Пользователь:</string>
+    <string name="password_label">Пароль:</string>
+    <string name="default_comment">test payment</string>
+    <string name="customer_number_label">Номер покупателя:</string>
+    <string name="signature_label">Подпись данных заказа:</string>
+    <string name="use_camera_cb_label">Сканировать карту</string>
+    <string name="pay_btn_text">Оплатить</string>
+    <string name="pay_web_btn_text">WEB Оплата</string>
+    <string name="log_btn_text">Журнал заказов</string>
+    <string name="server_url_label">Сервер:</string>
+    <string name="update_order_state_btn_text">Обновить</string>
+    <string name="order_info_title">Информация о заказе</string>
+    <string name="order_date_label">Дата заказа:</string>
+    <string name="android_pay_not_installed_message">Для оплаты через Android Pay необходимо установить приложение Android Pay</string>
+    <string name="item_name_format">Оплата заказа №%1$s</string>
 
 </resources>

@@ -18,6 +18,9 @@ import ru.assisttech.sdk.network.HttpResponse;
 import ru.assisttech.sdk.storage.AssistTransaction;
 import ru.assisttech.sdk.xml.XmlHelper;
 
+/**
+ * Класс вызова сервиса запроса статуса заказа {@link ru.assisttech.sdk.AssistAddress#GET_ORDER_STATUS_SERVICE}
+ */
 public class AssistResultProcessor extends AssistBaseProcessor {
 
     private static final String TAG = "AssistResultProvider";
@@ -44,10 +47,11 @@ public class AssistResultProcessor extends AssistBaseProcessor {
         getNetEngine().stopTasks();
     }
 
+    // TODO
     private String buildRequest() {
 
-        SystemInfo sysInfo = SystemInfo.getInstance(getContext());
         String regId = getEnvironment().getPayEngine().getRegistrationId();
+        String deviceId = getEnvironment().getDeviceId();
         AssistTransaction t = getTransaction();
 
         return "<soapenv:Envelope " +
@@ -56,7 +60,7 @@ public class AssistResultProcessor extends AssistBaseProcessor {
                     "<soapenv:Header/>" +
                     "<soapenv:Body>" +
                         "<ws:orderresult>" +
-                            "<device_id>" + sysInfo.fingerprint() + "</device_id>" +
+                            "<device_id>" + deviceId + "</device_id>" +
                             "<registration_id>" + regId + "</registration_id>" +
                             "<ordernumber>" + t.getOrderNumber() + "</ordernumber>" +
                             "<merchant_id>" + t.getMerchantID() + "</merchant_id>" +

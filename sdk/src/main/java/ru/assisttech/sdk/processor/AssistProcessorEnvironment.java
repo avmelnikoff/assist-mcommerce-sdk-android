@@ -2,34 +2,27 @@ package ru.assisttech.sdk.processor;
 
 import ru.assisttech.sdk.AssistMerchant;
 import ru.assisttech.sdk.AssistPaymentData;
-import ru.assisttech.sdk.engine.AssistBasePayEngine;
+import ru.assisttech.sdk.engine.AssistPayEngine;
 
 /**
  * Provides environment for AssistService
  */
 public class AssistProcessorEnvironment {
 
-    private AssistBasePayEngine engine; /* pay engine instance that started service */
+    private AssistPayEngine engine;     /* pay engine instance that started service */
     private AssistMerchant merchant;    /* Assist registered merchant - money destination */
     private AssistPaymentData data;     /* payment parameters required by Assist system */
-    private ServiceMode mode;           /* defines payment request details whether it is sent by MERCHANT or by CUSTOMER application */
+    private String deviceId;
 
-    public enum ServiceMode {
-        MERCHANT,
-        CUSTOMER
-    }
-
-    public AssistProcessorEnvironment(AssistBasePayEngine engine,
-                                      ServiceMode mode,
+    public AssistProcessorEnvironment(AssistPayEngine engine,
                                       AssistMerchant merchant,
                                       AssistPaymentData data) {
         this.engine = engine;
         this.merchant = merchant;
         this.data = data;
-        this.mode = mode;
     }
 
-    public AssistBasePayEngine getPayEngine() {
+    public AssistPayEngine getPayEngine() {
         return engine;
     }
 
@@ -41,7 +34,11 @@ public class AssistProcessorEnvironment {
         return data;
     }
 
-    public ServiceMode getMode() {
-        return mode;
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
     }
 }

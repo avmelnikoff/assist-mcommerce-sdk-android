@@ -1,5 +1,6 @@
 package ru.assisttech.sdk.processor;
 
+
 import android.content.Context;
 import android.util.Log;
 import android.util.Xml;
@@ -21,22 +22,19 @@ import ru.assisttech.sdk.FieldName;
 import ru.assisttech.sdk.network.AssistNetworkEngine;
 import ru.assisttech.sdk.network.HttpResponse;
 
-public class AssistSilentpayProcessor extends AssistBaseProcessor {
+public class AssistTokenPayProcessor extends AssistBaseProcessor {
 
-    private static final String TAG = "AssistSilentpayService";
+    private static final String TAG = "AssistTokenPayProcessor";
 
-    public AssistSilentpayProcessor(Context context, AssistProcessorEnvironment environment) {
+    public AssistTokenPayProcessor(Context context, AssistProcessorEnvironment environment) {
         super(context, environment);
     }
 
     @Override
     protected void run() {
-            /*
-             * Manual card data input
-             */
         getNetEngine().postRequest(getURL(),
                 new NetworkConnectionErrorListener(),
-                new SilentpayResponseParser(),
+                new TokenPayResponseParser(),
                 buildRequest()
         );
     }
@@ -81,20 +79,11 @@ public class AssistSilentpayProcessor extends AssistBaseProcessor {
                 content.append(URLEncoder.encode(params.get(FieldName.OrderComment), "UTF-8")).append("&");
             }
 
-            content.append(URLEncoder.encode("Cardnumber", "UTF-8")).append("=");
-            content.append(URLEncoder.encode(params.get(FieldName.CardNumber), "UTF-8")).append("&");
+            content.append(URLEncoder.encode("TokenType", "UTF-8")).append("=");
+            content.append(URLEncoder.encode("2", "UTF-8")).append("&");
 
-            content.append(URLEncoder.encode("Cardholder", "UTF-8")).append("=");
-            content.append(URLEncoder.encode(params.get(FieldName.CardHolder), "UTF-8")).append("&");
-
-            content.append(URLEncoder.encode("Expiremonth", "UTF-8")).append("=");
-            content.append(URLEncoder.encode(params.get(FieldName.ExpireMonth), "UTF-8")).append("&");
-
-            content.append(URLEncoder.encode("Expireyear", "UTF-8")).append("=");
-            content.append(URLEncoder.encode(params.get(FieldName.ExpireYear), "UTF-8")).append("&");
-
-            content.append(URLEncoder.encode("Cvc2", "UTF-8")).append("=");
-            content.append(URLEncoder.encode(params.get(FieldName.CVC2), "UTF-8")).append("&");
+            content.append(URLEncoder.encode("PaymentToken", "UTF-8")).append("=");
+            content.append(URLEncoder.encode(params.get(FieldName.PaymentToken), "UTF-8")).append("&");
 
             content.append(URLEncoder.encode("Lastname", "UTF-8")).append("=");
             content.append(URLEncoder.encode(params.get(FieldName.Lastname), "UTF-8")).append("&");
@@ -105,15 +94,8 @@ public class AssistSilentpayProcessor extends AssistBaseProcessor {
             content.append(URLEncoder.encode("Email", "UTF-8")).append("=");
             content.append(URLEncoder.encode(params.get(FieldName.Email), "UTF-8")).append("&");
 
-            /**
-             * Response format
-             * 1 - CSV;
-             * 2 - WDDX;
-             * 3 - XML;
-             * 4 - SOAP;
-             */
             content.append(URLEncoder.encode("Format", "UTF-8")).append("=");
-            content.append(URLEncoder.encode("4", "UTF-8")).append("&");
+            content.append(URLEncoder.encode("4", "UTF-8"));
 
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -124,7 +106,7 @@ public class AssistSilentpayProcessor extends AssistBaseProcessor {
         return content.toString();
     }
 
-    private class SilentpayResponseParser implements AssistNetworkEngine.NetworkResponseProcessor {
+    private class TokenPayResponseParser implements AssistNetworkEngine.NetworkResponseProcessor {
 
         protected Map<String, String> responseFields;
         protected String testField = "responsecode";
@@ -132,7 +114,7 @@ public class AssistSilentpayProcessor extends AssistBaseProcessor {
         protected boolean isError;
         protected String errorMessage;
 
-        public SilentpayResponseParser() {
+        public TokenPayResponseParser() {
             responseFields = new HashMap<>();
 
             responseFields.put("ordernumber", "");
@@ -177,7 +159,7 @@ public class AssistSilentpayProcessor extends AssistBaseProcessor {
         @Override
         public void asyncProcessing(HttpResponse response) {
 
-            Log.d(TAG, "SilentpayResponseParser.asyncProcessing()");
+            Log.d(TAG, "TokenPayResponseParser.asyncProcessing()");
             Log.d(TAG, "Response: " + response);
 
             try {

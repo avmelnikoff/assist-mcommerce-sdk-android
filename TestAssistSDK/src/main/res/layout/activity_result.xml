@@ -1,151 +1,120 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-    <LinearLayout
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="top|center"
-        android:background="#ffffff"
-        >
+        android:layout_height="32dp"
+        android:gravity="center"
+        android:text="@string/result_title"
+        android:background="#f2f2f2" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#f2f2f2"
-            android:padding="16dp"
-            >
+            android:orientation="vertical"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Result"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="10dp"
-                >
-            </TextView>
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/order_state_label" />
+                <TextView
+                    android:id="@+id/tvResultStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"/>
+            </LinearLayout>
 
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#ffffff"
-            android:padding="16dp"
-            android:layout_marginBottom="16dp"
-            >
-
-            <TextView
-                android:id="@+id/tvResultPaymentMode"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Card Paymode"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="10dp"
-                >
-            </TextView>
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/order_number_label" />
+                <TextView
+                    android:id="@+id/tvResultOrderNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"/>
+            </LinearLayout>
 
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Order number: "
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="5dp"/>
-            <TextView
-                android:id="@+id/tvResultOrderNumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-         </LinearLayout>
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/order_amount_label" />
+                <TextView
+                    android:id="@+id/tvResultOrderAmount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"/>
+            </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Result amount: "
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="5dp"/>
-            <TextView
-                android:id="@+id/tvResultOrderAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <LinearLayout
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:orientation="horizontal">
-             <TextView
-                 android:layout_width="wrap_content"
+            <LinearLayout
+                 android:layout_width="match_parent"
                  android:layout_height="wrap_content"
-                 android:text="Order comment: "
-                 android:layout_marginLeft="16dp"
-                 android:layout_marginRight="5dp"/>
-             <TextView
-                 android:id="@+id/tvResultOrderComment"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:text=""
-                 />
-         </LinearLayout>
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                 android:orientation="horizontal">
+                 <TextView
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:text="@string/order_comment_label" />
+                 <TextView
+                     android:id="@+id/tvResultOrderComment"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:gravity="end"/>
+             </LinearLayout>
 
-         <LinearLayout
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:orientation="horizontal">
-             <TextView
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:text="Result status: "
-                 android:layout_marginLeft="16dp"
-                 android:layout_marginRight="5dp"/>
-             <TextView
-                 android:id="@+id/tvResultStatus"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"/>
-         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Extra info: "
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="5dp"/>
-            <TextView
-                android:id="@+id/tvResultExtraInfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/order_extra_info_label" />
+                <TextView
+                    android:id="@+id/tvResultExtraInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"/>
+            </LinearLayout>
         </LinearLayout>
+    </ScrollView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_gravity="center">
+    <Button
+        android:id="@+id/btnResultClose"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/result_close_button_text"/>
 
-            <Button
-                android:id="@+id/btnResultClose"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="16dp"
-                android:text="Close"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>

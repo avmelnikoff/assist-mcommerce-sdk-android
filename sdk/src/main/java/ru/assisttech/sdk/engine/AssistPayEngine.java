@@ -19,11 +19,12 @@ import ru.assisttech.sdk.R;
 import ru.assisttech.sdk.identification.InstallationInfo;
 import ru.assisttech.sdk.identification.SystemInfo;
 import ru.assisttech.sdk.network.AssistNetworkEngine;
+import ru.assisttech.sdk.processor.AssistCancelProcessor;
+import ru.assisttech.sdk.processor.AssistTokenPayProcessor;
 import ru.assisttech.sdk.registration.AssistRegistrationData;
 import ru.assisttech.sdk.registration.AssistRegistrationProvider;
 import ru.assisttech.sdk.registration.RegistrationRequestBuilder;
 import ru.assisttech.sdk.processor.AssistBaseProcessor;
-import ru.assisttech.sdk.processor.AssistPayCashProcessor;
 import ru.assisttech.sdk.processor.AssistResultProcessor;
 import ru.assisttech.sdk.processor.AssistProcessorEnvironment;
 import ru.assisttech.sdk.processor.AssistProcessorListener;
@@ -32,10 +33,12 @@ import ru.assisttech.sdk.storage.AssistTransaction;
 import ru.assisttech.sdk.storage.AssistTransactionStorage;
 import ru.assisttech.sdk.storage.AssistTransactionStorageImpl;
 
+import static ru.assisttech.sdk.storage.AssistTransaction.PaymentMethod.CARD_TERMINAL;
+
 /**
  * Initiates payment process, checks connection and registration
  */
-public abstract class AssistBasePayEngine {
+public class AssistPayEngine {
 						
 	private static final String TAG = "AssistPayEngine";
 
@@ -43,7 +46,7 @@ public abstract class AssistBasePayEngine {
 
 	private Context appContext;
 	private Activity callerActivity;
-	private SystemInfo sysInfo;		
+
 	private InstallationInfo instInfo;
 	private AssistNetworkEngine netEngine;
 
@@ -55,13 +58,30 @@ public abstract class AssistBasePayEngine {
 	private ProgressDialog pd;
     private boolean connectionChecked;
     private boolean finished;
+    private String deviceUniqueId;
 
-    AssistBasePayEngine(Context c, String dbNameSuffix) {
+    private static AssistPayEngine instance;
+
+    public static synchronized AssistPayEngine getInstance(Context context) {
+        if (instance == null) {
+            instance = new AssistPayEngine(context);
+        }
+        return instance;
+    }
+
+    private AssistPayEngine(Context c) {
         appContext = c.getApplicationContext();
         netEngine = new AssistNetworkEngine(appContext);
-        storage = new AssistTransactionStorageImpl(appContext, dbNameSuffix);
-        sysInfo = SystemInfo.getInstance(appContext);
+        storage = new AssistTransactionStorageImpl(appContext, "c");
         instInfo = InstallationInfo.getInstance(appContext);
+
+        SystemInfo sysInfo = SystemInfo.getInstance();
+        deviceUniqueId = sysInfo.uniqueId();
+    }
+
+    private AssistProcessorEnvironment buildServiceEnvironment(AssistPaymentData data) {
+        AssistMerchant m = new AssistMerchant(data.getMerchantID(), data.getLogin(), data.getPassword());
+        return new AssistProcessorEnvironment(this, m, data);
     }
 
 	public void setEngineListener(PayEngineListener listener) {
@@ -95,42 +115,14 @@ public abstract class AssistBasePayEngine {
         return storage;
     }
 
-    public SystemInfo getSystemInfo() {
-        return sysInfo;
-    }
-
     public InstallationInfo getInstInfo() {
         return instInfo;
     }
 
-    /**
-     * Save customer signature for current transaction into DB
-     * @param id transaction ID {@link AssistTransaction#getId()}
-     * @param signature user signature as array of points
-     */
-    public void setUserSignature(long id, byte[] signature) {
-        storage.updateTransactionSignature(id, signature);
+
+    public void payWeb(Activity caller, AssistPaymentData data, boolean useCamera) {
+        payWeb(caller, buildServiceEnvironment(data), useCamera);
     }
-
-	public void payCash(Activity caller, AssistProcessorEnvironment environment) {
-
-        Log.e(TAG, "Cash payment is not implemented");
-
-        if (isEngineReady()) {
-            saveCallerActivity(caller);
-            setFinished(false);
-
-            AssistMerchant m = environment.getMerchant();
-            AssistPaymentData data = environment.getData();
-            AssistTransaction t = createTransaction(m.getID(), data, AssistTransaction.PaymentMethod.CASH);
-
-            processor = new AssistPayCashProcessor(getContext(), environment);
-            processor.setListener(new PayCashProcessorListener());
-            processor.setTransaction(t);
-
-            startPayment();
-        }
-	}
 
     /**
      * Web based payment process
@@ -163,6 +155,63 @@ public abstract class AssistBasePayEngine {
         }
     }
 
+    public void payToken(Activity caller, AssistPaymentData data) {
+        payToken(caller, buildServiceEnvironment(data));
+    }
+
+    /**
+     * Платеж с токеном Android Pay
+     */
+    public void payToken(Activity caller, AssistProcessorEnvironment environment) {
+
+        if (isEngineReady()) {
+            saveCallerActivity(caller);
+            setFinished(false);
+
+            AssistMerchant m = environment.getMerchant();
+            AssistPaymentData data = environment.getData();
+
+            AssistTransaction t = new AssistTransaction();
+            t.setMerchantID(m.getID());
+            t.setOrderAmount(data.getFields().get(FieldName.OrderAmount));
+            t.setOrderComment(data.getFields().get(FieldName.OrderComment));
+            t.setOrderCurrency(AssistPaymentData.Currency.valueOf(data.getFields().get(FieldName.OrderCurrency)));
+            t.setOrderNumber(data.getFields().get(FieldName.OrderNumber));
+            if (data.getOrderItems() != null) {
+                t.setOrderItems(data.getOrderItems());
+            }
+            t.setPaymentMethod(CARD_TERMINAL);
+
+            processor = new AssistTokenPayProcessor(getContext(), environment);
+            processor.setNetEngine(netEngine);
+            processor.setURL(getTokenPayeServiceUrl());
+            processor.setListener(new TokenPayProcessorListener());
+            processor.setTransaction(t);
+
+            checkRegistration();
+        }
+    }
+
+    /**
+     * Отмена платежа. Возможна только для успешных платежей.
+     */
+    public void cancelPayment(Activity caller, AssistTransaction t, String mid, String login, String password) {
+
+        if (isEngineReady()) {
+            saveCallerActivity(caller);
+            setFinished(false);
+
+            AssistMerchant m = new AssistMerchant(mid, login, password);
+            AssistProcessorEnvironment env = new AssistProcessorEnvironment(this, m, null);
+            processor = new AssistCancelProcessor(getContext(), env);
+            processor.setNetEngine(netEngine);
+            processor.setURL(getCancelUrl());
+            processor.setListener(new CancelProcessorListener());
+            processor.setTransaction(t);
+            checkRegistration();
+        }
+    }
+
     /**
      * Gets result for certain payment
      * @param id transaction ID {@link AssistTransaction#getId()}
@@ -185,63 +234,56 @@ public abstract class AssistBasePayEngine {
         }
     }
 
-    /**
-     * Method implemented in successors because there are
-     * differences between customer and merchant registration ID.
-     */
-    public abstract String getRegistrationId();
+    public String getRegistrationId() {
+        return getInstInfo().getAppRegId();
+    }
+
+    public String getDeviceId() {
+        return getInstInfo().getDeiceUniqueId();
+    }
 
     /**
      * Checks application registration in Assist Payment System
      */
-    protected void checkRegistration() {
+    private void checkRegistration() {
         /* Check network connection first */
         if (!connectionChecked) {
             checkNetworkConnection();
             return;
         }
-
         if (getRegistrationId() == null) {
             startRegistration();
         } else {
+            deviceUniqueId = getDeviceId();
             startPayment();
         }
     }
 
     /**
-     * Application installation registration in Assist Payment System
+     * Запуск вызова сервиса регистрации приложения в Ассист {@link AssistAddress#REGISTRATION_SERVICE}
+     * Полученные регистрационные данные используются при проведении платежа {@link #payWeb(Activity, AssistProcessorEnvironment, boolean)}
      */
-    protected void startRegistration() {
-
+    private void startRegistration() {
         AssistRegistrationData regData = new AssistRegistrationData();
         regData.setApplicationName(instInfo.appName());
         regData.setAppVersion(instInfo.versionName());
-        regData.setDerviceID(sysInfo.fingerprint());
+        regData.setDerviceID(deviceUniqueId);
 
         AssistRegistrationProvider rp = new AssistRegistrationProvider(getContext());
         rp.setNetworkEngine(netEngine);
         rp.setURL(getRegistrationUrl());
-        rp.setResutListener(new RegistrationResultListener());
-        rp.register(getRegRequestBuilder(regData));
+        rp.setResultListener(new RegistrationResultListener());
+        rp.register(new RegistrationRequestBuilder(regData));
     }
 
-    /**
-     * Method implemented in successors because there are
-     * differences between customer and merchant mode registration.
-     */
-    protected abstract RegistrationRequestBuilder getRegRequestBuilder(AssistRegistrationData data);
-
-    /**
-     * Method implemented in successors because there are
-     * differences between customer and merchant registration ID.
-     */
-    protected abstract void onRegistrationSuccess(String registrationID);
-
+    private void onRegistrationSuccess(String deviceId, String registrationID) {
+        getInstInfo().setAppRegID(deviceId, registrationID);
+    }
 
     /**
      * HTTPS connection's certificate check procedure
      */
-    protected void checkNetworkConnection() {
+    private void checkNetworkConnection() {
         Log.d(TAG, "Check URL: " + ServerUrl);
         try {
             URL u = new URL(ServerUrl + AssistAddress.WEB_SERVICE);
@@ -253,7 +295,7 @@ public abstract class AssistBasePayEngine {
     }
 
 
-	protected AssistTransaction createTransaction(String merchantID, AssistPaymentData data, AssistTransaction.PaymentMethod method) {
+	private AssistTransaction createTransaction(String merchantID, AssistPaymentData data, AssistTransaction.PaymentMethod method) {
         AssistTransaction t = new AssistTransaction();
         t.setMerchantID(merchantID);
         t.setOrderAmount(data.getFields().get(FieldName.OrderAmount));
@@ -272,14 +314,14 @@ public abstract class AssistBasePayEngine {
         return t;
 	}
 
-    protected void startProcessor() {
+    private void startProcessor() {
 		processor.start(getCallerActivity());
 	}
 
     /**
      * Transaction saving and payment beginning
      */
-    protected void startPayment() {
+    private void startPayment() {
         Log.d(TAG, "startPayment()");
         if (!processor.getTransaction().isStored()) {
             storage.add(processor.getTransaction()); // TODO: Check return value (whether transaction added successfully or not)
@@ -287,36 +329,31 @@ public abstract class AssistBasePayEngine {
         startProcessor();
     }
 
-
     /**
      * Internal method to get payment result after payment process completion.
      * Does not check application registration
      * @param id transaction id {@link AssistTransaction#getId()}
      */
-    protected void getResult(long id) {
+    private void getResult(long id) {
         processor = initResultProcessor(id);
         startProcessor();
     }
 
-    /**
-     * Method implemented in successors because there are differences
-     * whether getting result in customer or merchant modes
-     */
-    protected abstract AssistResultProcessor getResultProcessor();
-
-    protected ResultProcessorListener getResultProcessorListener() {
-        return new ResultProcessorListener();
+    private AssistResultProcessor getResultProcessor() {
+        AssistProcessorEnvironment env = new AssistProcessorEnvironment(this, null, null);
+        env.setDeviceId(getDeviceId());
+        return new AssistResultProcessor(getContext(), env);
     }
 
     /**
      * @param id transaction id {@link AssistTransaction#getId()}
      * @return {@link AssistResultProcessor}
      */
-    protected AssistResultProcessor initResultProcessor(long id) {
+    private  AssistResultProcessor initResultProcessor(long id) {
         AssistResultProcessor rp = getResultProcessor();
         rp.setNetEngine(netEngine);
         rp.setURL(getGetOrderStatusUrl());
-        rp.setListener(getResultProcessorListener());
+        rp.setListener(new ResultProcessorListener());
         rp.setTransaction(getTransaction(id));
         return rp;
     }
@@ -334,12 +371,12 @@ public abstract class AssistBasePayEngine {
      * @param id ID of transaction to cancel {@link AssistTransaction#getId()}
      * @param result result of transaction {@link AssistResult}
      */
-	protected void updateTransaction(long id, AssistResult result) {
+	private void updateTransaction(long id, AssistResult result) {
 		storage.updateTransactionResult(id, result);
 	}
 
 
-    protected void engineInitializationFailed(String info) {
+    private void engineInitializationFailed(String info) {
 		processor = null;
         if (!isFinished()) {
             getEngineListener().onFailure(getCallerActivity(), info);
@@ -350,47 +387,51 @@ public abstract class AssistBasePayEngine {
         return appContext;
     }
 
-    protected String getServerUrl() {
+    private String getServerUrl() {
         return ServerUrl;
     }
 
-    protected AssistNetworkEngine getNetEngine() {
-        return netEngine;
-    }
-
-    protected String getRegistrationUrl() {
+    private String getRegistrationUrl() {
         return getServerUrl() + AssistAddress.REGISTRATION_SERVICE;
     }
 
-    protected String getWebServiceUrl() {
+    private String getWebServiceUrl() {
         return getServerUrl() + AssistAddress.WEB_SERVICE;
     }
 
-    protected String getGetOrderStatusUrl() {
+    private String getTokenPayeServiceUrl() {
+        return getServerUrl() + AssistAddress.TOKENPAY_SERVICE;
+    }
+
+    private String getGetOrderStatusUrl() {
         return getServerUrl() + AssistAddress.GET_ORDER_STATUS_SERVICE;
     }
 
-    protected boolean isEngineReady() {
+    private String getCancelUrl() {
+        return getServerUrl() + AssistAddress.CANCEL_SERVICE;
+    }
+
+    private boolean isEngineReady() {
         return processor == null || !processor.isRunning();
     }
 
-    protected void saveCallerActivity(Activity caller) {
+    private void saveCallerActivity(Activity caller) {
         callerActivity = caller;
     }
 
-    protected Activity getCallerActivity() {
+    private Activity getCallerActivity() {
         return callerActivity;
     }
 
-    protected boolean isFinished() {
+    private boolean isFinished() {
         return finished;
     }
 
-    protected void setFinished(boolean value) {
+    private void setFinished(boolean value) {
         this.finished = value;
     }
 
-    protected void showProgressDialog(Activity activity, int messageResId) {
+    private  void showProgressDialog(Activity activity, int messageResId) {
 		if (pd != null) {
 			return;
 		}
@@ -400,17 +441,21 @@ public abstract class AssistBasePayEngine {
 		pd.show();
 	}
 
-    protected void closeProgressDialog() {
+    private  void closeProgressDialog() {
 		if (pd != null) {
 			pd.dismiss();
 			pd = null;
 		}
 	}
 
+    public AssistWebProcessor getWebProcessor() {
+        return (AssistWebProcessor) processor;
+    }
+
     /**
      * Connection check result processing
      */
-    protected class ConnectionCheckListener implements AssistNetworkEngine.ConnectionCheckListener {
+    private  class ConnectionCheckListener implements AssistNetworkEngine.ConnectionCheckListener {
 
         @Override
         public void onConnectionSuccess() {
@@ -430,14 +475,14 @@ public abstract class AssistBasePayEngine {
     }
 
     /**
-     * Registration result processing
+     * Слушатель результата регистрации приложения {@link AssistRegistrationProvider}
      */
-    protected class RegistrationResultListener implements AssistRegistrationProvider.RegistrationResultListener {
+    private  class RegistrationResultListener implements AssistRegistrationProvider.RegistrationResultListener {
 
         @Override
         public void onRegistrationOk(String registrationID) {
             Log.d(TAG, "onRegistrationOk(): " + registrationID);
-            onRegistrationSuccess(registrationID);
+            onRegistrationSuccess(deviceUniqueId, registrationID);
             startPayment();
         }
 
@@ -449,25 +494,25 @@ public abstract class AssistBasePayEngine {
     }
 
     /**
-     * BaseProcessorListener callback listener {@link AssistPayCashProcessor}
+     * Базовый слушатель результата
      */
-    protected abstract class BaseProcessorListener implements AssistProcessorListener {
+    private abstract class BaseProcessorListener implements AssistProcessorListener {
 
         @Override
         public void onNetworkError(long id, String message) {
-            Log.d(TAG, "PayCashProcessorListener.onNetworkError() " + message);
+            Log.d(TAG, "onNetworkError() " + message);
             getEngineListener().onNetworkError(getCallerActivity(), message);
         }
 
         @Override
         public void onTerminated(long id) {
-            Log.d(TAG, "PayCashProcessorListener.onTerminated()");
+            Log.d(TAG, "onTerminated()");
             getEngineListener().onCanceled(getCallerActivity(), getTransaction(id));
         }
 
         @Override
         public void onActivityCreated(Activity newActivity) {
-            Log.d(TAG, "PayCashProcessorListener.onActivityCreated()");
+            Log.d(TAG, "onActivityCreated()");
             if (newActivity != null) {
                 saveCallerActivity(newActivity);
             }
@@ -475,30 +520,9 @@ public abstract class AssistBasePayEngine {
     }
 
     /**
-     * PayCashProcessor callback listener {@link ru.assisttech.sdk.engine.AssistBasePayEngine.BaseProcessorListener}
+     * Слушатель результата вызова сервисе web оплаты {@link AssistWebProcessor}
      */
-    protected class PayCashProcessorListener extends BaseProcessorListener {
-
-        @Override
-        public void onFinished(long id, AssistResult result) {
-            Log.d(TAG, "PayCashProcessorListener.onFinished() id = : " + String.valueOf(id) + "; " + result.getExtra());
-            if (!isFinished()) {
-                updateTransaction(id, result);
-                getEngineListener().onFinished(getCallerActivity(), getTransaction(id));
-            }
-        }
-
-        @Override
-        public void onError(long id, String message) {
-            Log.d(TAG, "PayCashProcessorListener.onError() " + message);
-            getEngineListener().onFailure(getCallerActivity(), message);
-        }
-    }
-
-    /**
-     * WebProcessor callback listener {@link ru.assisttech.sdk.engine.AssistBasePayEngine.BaseProcessorListener}
-     */
-    protected class WebProcessorListener extends BaseProcessorListener {
+    private class WebProcessorListener extends BaseProcessorListener {
 
         @Override
         public void onFinished(long id, AssistResult result) {
@@ -520,9 +544,9 @@ public abstract class AssistBasePayEngine {
     }
 
     /**
-     * ResultProcessor callback listener {@link ru.assisttech.sdk.engine.AssistBasePayEngine.BaseProcessorListener}
+     * Слушатель результата вызова сервиса запроса статуса заказа {@link AssistResultProcessor}
      */
-    protected class ResultProcessorListener extends BaseProcessorListener {
+    private class ResultProcessorListener extends BaseProcessorListener {
 
         @Override
         public void onFinished(long id, AssistResult result) {
@@ -534,6 +558,42 @@ public abstract class AssistBasePayEngine {
         @Override
         public void onError(long id, String message) {
             Log.d(TAG, "ResultProcessorListener.onError() " + message);
+            getEngineListener().onFailure(getCallerActivity(), message);
+        }
+    }
+
+    /**
+     * Слушатель результата вызова сервиса отмены заказа {@link AssistCancelProcessor}
+     */
+    private class CancelProcessorListener extends BaseProcessorListener {
+        @Override
+        public void onFinished(long id, AssistResult result) {
+            Log.d(TAG, "CancelProcessorListener.onFinished() " + result.getOrderState());
+            updateTransaction(id, result);
+            getEngineListener().onFinished(getCallerActivity(), getTransaction(id));
+        }
+
+        @Override
+        public void onError(long id, String message) {
+            Log.d(TAG, "CancelProcessorListener.onError() " + message);
+            getEngineListener().onFailure(getCallerActivity(), message);
+        }
+    }
+
+    /**
+     * Слушатель результата вызова сервиса оплаты заказа с токеном {@link AssistTokenPayProcessor}
+     */
+    private class TokenPayProcessorListener extends BaseProcessorListener {
+        @Override
+        public void onFinished(long id, AssistResult result) {
+            Log.d(TAG, "TokenPayProcessorListener.onFinished() " + result.getOrderState());
+            updateTransaction(id, result);
+            getEngineListener().onFinished(getCallerActivity(), getTransaction(id));
+        }
+
+        @Override
+        public void onError(long id, String message) {
+            Log.d(TAG, "TokenPayProcessorListener.onError() " + message);
             getEngineListener().onFailure(getCallerActivity(), message);
         }
     }

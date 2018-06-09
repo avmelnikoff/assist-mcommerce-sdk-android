@@ -23,7 +23,6 @@ public class AssistRegistrationProvider {
     //private static final String SOAP_ACTION = "http://www.paysecure.ru/ws/getregistration";
 
     private RegistrationResultListener registrationListener;
-	private Context ctx;
     private URL url;
     private AssistNetworkEngine ne;
 
@@ -33,7 +32,6 @@ public class AssistRegistrationProvider {
 	}
 		
 	public AssistRegistrationProvider(Context context) {
-		ctx = context;
 	}
 
     public void setNetworkEngine(AssistNetworkEngine engine) {
@@ -48,7 +46,7 @@ public class AssistRegistrationProvider {
         }
     }
 
-    public void setResutListener(RegistrationResultListener listener) {
+    public void setResultListener(RegistrationResultListener listener) {
         this.registrationListener = listener;
     }
 

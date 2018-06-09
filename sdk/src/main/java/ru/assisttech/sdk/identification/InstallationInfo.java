@@ -32,33 +32,27 @@ public class InstallationInfo {
     
     private InstallationInfo(Context context) {
     	this.context = context;
-    	getNames(context);
+        getNames(context);
         // Restore preferences
         String name = context.getApplicationInfo().packageName + INSTALLATION;
         settings = context.getSharedPreferences(name, Context.MODE_PRIVATE);
     }
 
-    public String getMerchantRegId(String merchantID) {
-        return settings.getString(merchantID, null);
+    public String getAppRegId() {
+        String deviceId = settings.getString(APP_REG_ID, null);
+        return (deviceId != null) ? settings.getString(deviceId, null) : null;
     }
 
-    public String getAppRegId() {
+    public String getDeiceUniqueId() {
         return settings.getString(APP_REG_ID, null);
     }
 
-    public void setAppRegID(String registrationID) {
-        setRegistrationId(APP_REG_ID, registrationID);
-    }
-
-    public void setMerchantRegID(String merchantID, String registrationID) {
-        setRegistrationId(merchantID, registrationID);
-    }
-
-    private void setRegistrationId(String merchantID, String registrationID) {
+    public void setAppRegID(String deviceId, String registrationID) {
         // We need an Editor object to make preference changes.
         // All objects are from android.context.Context
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(merchantID, registrationID);
+        editor.putString(APP_REG_ID, deviceId);
+        editor.putString(deviceId, registrationID);
         // Commit the edits!
         editor.commit();
     }
@@ -71,51 +65,19 @@ public class InstallationInfo {
         return versionName;
     }
 
-    public String installedApplications() {
-
-        StringBuilder apps = new StringBuilder();
-        apps.append("<device os=\"android\">");
-
-        PackageManager pm = context.getPackageManager();
-        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
-        for (int i = 0; i < packages.size(); i++) {
-            try {
-                // App name
-                String name = packages.get(i).loadLabel(pm).toString();
-                PackageInfo pi = pm.getPackageInfo(packages.get(i).packageName, 0);
-                // App version
-                String version = pi.versionName;
-                // App date
-                long mills = pi.lastUpdateTime;
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss", Locale.US);
-                String date = sdf.format(new Date(mills));
-                // Form string
-                apps.append("<app name=\"").
-                     append(name).
-                     append("\" ver=\"").
-                     append(version).
-                     append("\" date=\"").
-                     append(date).
-                     append("\">");
-            } catch (PackageManager.NameNotFoundException e) {
-            }
-        }
-        apps.append("</device>");
-        return apps.toString();
-    }
-    
     private void getNames(Context context) {
-    	
-    	Resources res = context.getResources();
+
+        Resources res = context.getResources();
         appName = res.getText(res.getIdentifier("app_name", "string", context.getPackageName())).toString();
-    	    	    	
-    	versionName = "";
-    	PackageManager manager = context.getPackageManager();	    	
-		try {
-			PackageInfo pacInfo = manager.getPackageInfo(context.getPackageName(), 0);
-			versionName = pacInfo.versionName;
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
-		}	
+
+        versionName = "";
+        PackageManager manager = context.getPackageManager();
+        try {
+            PackageInfo pacInfo = manager.getPackageInfo(context.getPackageName(), 0);
+            appName = pacInfo.packageName;
+            versionName = pacInfo.versionName;
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

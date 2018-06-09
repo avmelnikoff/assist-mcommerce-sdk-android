@@ -6,10 +6,12 @@ import android.content.Context;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import ru.assisttech.sdk.AssistResult;
 import ru.assisttech.sdk.network.AssistNetworkEngine;
 import ru.assisttech.sdk.storage.AssistTransaction;
 
+/**
+ * Базовый класс для классов вызывающих web сервисы Ассист
+ */
 public abstract class AssistBaseProcessor {
 
     private Context context;
@@ -70,10 +72,6 @@ public abstract class AssistBaseProcessor {
 
     public boolean isRunning() {
         return isRunning;
-    }
-
-    public boolean isCashService() {
-        return false;
     }
 
     protected abstract void run();

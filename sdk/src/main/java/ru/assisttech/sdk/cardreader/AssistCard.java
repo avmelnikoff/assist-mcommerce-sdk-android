@@ -1,59 +1,38 @@
 package ru.assisttech.sdk.cardreader;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.Calendar;
 
-public class AssistCard {
+public class AssistCard implements Parcelable {
 
     private String pan;
-    private String calrdholder;
+    private String cardHolder;
     private String expireMonth;
     private String expireYear;
-    private String cardType;
-    private String track2data;
-    private String emv;
-    private String pinblock;
-    private String issuebank;
 
-    public String getPinblock() {
-        return pinblock;
+    public AssistCard() {
     }
 
-    public void setPinblock(String pinblock) {
-        this.pinblock = pinblock;
+    private AssistCard(Parcel in) {
+        read(in);
     }
 
-    public String getIssuebank() {
-        return issuebank;
+    public String getPan() {
+        return pan;
     }
 
-    public void setIssuebank(String issuebank) {
-        this.issuebank = issuebank;
+    public void setPan(String pan) {
+        this.pan = pan;
     }
 
-    public String getCalrdholder() {
-        return calrdholder;
+    public String getCardHolder() {
+        return cardHolder;
     }
 
-    public void setCalrdholder(String calrdholder) {
-        this.calrdholder = calrdholder;
-    }
-
-    public String getCardType() {
-        return cardType;
-    }
-
-    public void setCardType(String cardType) {
-        this.cardType = cardType;
-    }
-
-    public String getEmv() {
-        return emv;
-    }
-
-    public void setEmv(String emv) {
-        this.emv = emv;
+    public void setCardHolder(String cardHolder) {
+        this.cardHolder = cardHolder;
     }
 
     public String getExpireMonth() {
@@ -89,43 +68,39 @@ public class AssistCard {
         setExpireYear(String.valueOf(year));
     }
 
-    public String getPan() {
-        return pan;
+    // Parcelable
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
-    public void setPan(String pan) {
-        this.pan = pan;
+    // Parcelable
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        write(dest);
     }
+    // Parcelable
+    public static final Parcelable.Creator<AssistCard> CREATOR = new Parcelable.Creator<AssistCard>() {
+        public AssistCard createFromParcel(Parcel in) {
+            return new AssistCard(in);
+        }
 
-    public String getTrack2data() {
-        return track2data;
-    }
+        public AssistCard[] newArray(int size) {
+            return new AssistCard[size];
+        }
+    };
 
-    public void setTrack2data(String track2data) {
-        this.track2data = track2data;
-    }
-
-    public void read(Parcel in) {
+    void read(Parcel in) {
         pan = in.readString();
-        calrdholder = in.readString();
+        cardHolder = in.readString();
         expireMonth = in.readString();
         expireYear = in.readString();
-        cardType = in.readString();
-        track2data = in.readString();
-        emv = in.readString();
-        pinblock = in.readString();
-        issuebank = in.readString();
     }
 
-    public void write(Parcel out) {
+    void write(Parcel out) {
         out.writeString(pan);
-        out.writeString(calrdholder);
+        out.writeString(cardHolder);
         out.writeString(expireMonth);
         out.writeString(expireYear);
-        out.writeString(cardType);
-        out.writeString(track2data);
-        out.writeString(emv);
-        out.writeString(pinblock);
-        out.writeString(issuebank);
     }
 }
